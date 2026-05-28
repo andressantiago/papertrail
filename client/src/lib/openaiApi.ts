@@ -42,7 +42,10 @@ function parseStreamEvent(line: string): StreamEvent {
 }
 
 function parseStreamLines(lines: string[]): StreamEvent[] {
-  return lines.map((line) => line.trim()).filter(Boolean).map(parseStreamEvent);
+  return lines
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map(parseStreamEvent);
 }
 
 async function* readStreamEvents(body: ReadableStream<Uint8Array>): AsyncGenerator<StreamEvent> {

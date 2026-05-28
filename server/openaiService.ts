@@ -20,7 +20,11 @@ export async function createConversation(): Promise<string> {
   return conversation.id;
 }
 
-export async function streamConversationResponse(conversationId: string, input: string, options: StreamOptions = {}) {
+export async function streamConversationResponse(
+  conversationId: string,
+  input: string,
+  options: StreamOptions = {},
+) {
   return getOpenAIClient().responses.create(
     {
       model: config.openAI.model,

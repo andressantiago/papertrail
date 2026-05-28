@@ -29,7 +29,12 @@ export function TopBar({
         <span className="brand-name">Papertrail</span>
       </div>
       <div className="status-group">
-        <button className="new-chat-button" type="button" onClick={onNewChat} disabled={newChatDisabled}>
+        <button
+          className="new-chat-button"
+          type="button"
+          onClick={onNewChat}
+          disabled={newChatDisabled}
+        >
           <PlusIcon />
           <span>New chat</span>
         </button>

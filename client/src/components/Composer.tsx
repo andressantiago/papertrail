@@ -11,7 +11,14 @@ type ComposerProps = {
   onSubmit: () => void;
 };
 
-export function Composer({ value, disabled, busy, error, onChange, onSubmit }: ComposerProps): React.JSX.Element {
+export function Composer({
+  value,
+  disabled,
+  busy,
+  error,
+  onChange,
+  onSubmit,
+}: ComposerProps): React.JSX.Element {
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>): void {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();

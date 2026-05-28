@@ -56,7 +56,11 @@ function configureNdjsonStream(res: express.Response): void {
   res.flushHeaders();
 }
 
-function attachAbortOnClose(res: express.Response, abortController: AbortController, state: StreamState): void {
+function attachAbortOnClose(
+  res: express.Response,
+  abortController: AbortController,
+  state: StreamState,
+): void {
   res.on("close", () => {
     if (!state.completed && !res.writableEnded) {
       abortController.abort();
@@ -106,43 +110,49 @@ app.get<never, OpenAIStatusResponse>("/api/openai/status", (req, res) => {
   });
 });
 
-app.post<never, OpenAIRespondResponse | ErrorResponse, OpenAIRespondRequestBody>("/api/openai/respond", async (req, res) => {
-  const { input } = req.body;
+app.post<never, OpenAIRespondResponse | ErrorResponse, OpenAIRespondRequestBody>(
+  "/api/openai/respond",
+  async (req, res) => {
+    const { input } = req.body;
 
-  if (!isOpenAIConfigured()) {
-    return res.status(503).json({ error: "OpenAI is not configured." });
-  }
+    if (!isOpenAIConfigured()) {
+      return res.status(503).json({ error: "OpenAI is not configured." });
+    }
 
-  if (typeof input !== "string" || !input.trim()) {
-    return res.status(400).json({ error: "Request body must include a non-empty input string." });
-  }
+    if (typeof input !== "string" || !input.trim()) {
+      return res.status(400).json({ error: "Request body must include a non-empty input string." });
+    }
 
-  try {
-    const output = await respondToInput(input.trim());
-    return res.json({ output });
-  } catch (error) {
-    console.error("OpenAI request failed:", error);
-    return res.status(500).json({ error: "OpenAI request failed." });
-  }
-});
+    try {
+      const output = await respondToInput(input.trim());
+      return res.json({ output });
+    } catch (error) {
+      console.error("OpenAI request failed:", error);
+      return res.status(500).json({ error: "OpenAI request failed." });
+    }
+  },
+);
 
-app.post<never, OpenAIConversationResponse | ErrorResponse>("/api/openai/conversations", async (req, res) => {
-  if (!isOpenAIConfigured()) {
-    return res.status(503).json({ error: "OpenAI is not configured." });
-  }
+app.post<never, OpenAIConversationResponse | ErrorResponse>(
+  "/api/openai/conversations",
+  async (req, res) => {
+    if (!isOpenAIConfigured()) {
+      return res.status(503).json({ error: "OpenAI is not configured." });
+    }
 
-  try {
-    const conversationId = await createConversation();
+    try {
+      const conversationId = await createConversation();
 
-    return res.json({
-      conversationId,
-      model: config.openAI.model,
-    });
-  } catch (error) {
-    console.error("OpenAI conversation creation failed:", error);
-    return res.status(500).json({ error: "OpenAI conversation creation failed." });
-  }
-});
+      return res.json({
+        conversationId,
+        model: config.openAI.model,
+      });
+    } catch (error) {
+      console.error("OpenAI conversation creation failed:", error);
+      return res.status(500).json({ error: "OpenAI conversation creation failed." });
+    }
+  },
+);
 
 app.post<{ conversationId: string }, ErrorResponse, OpenAIStreamRequestBody>(
   "/api/openai/conversations/:conversationId/stream",

@@ -10,7 +10,11 @@ type SetConversationId = (conversationId: string) => void;
 type SetError = (error: string | null) => void;
 type UpdateMessages = (update: (messages: ChatMessage[]) => ChatMessage[]) => void;
 
-function createMessage(role: ChatMessage["role"], content: string, status: ChatMessage["status"]): ChatMessage {
+function createMessage(
+  role: ChatMessage["role"],
+  content: string,
+  status: ChatMessage["status"],
+): ChatMessage {
   return {
     id: makeId(role),
     role,
@@ -49,14 +53,22 @@ function updateAssistantMessage(
   return messages.map((message) => (message.id === assistantId ? update(message) : message));
 }
 
-function appendAssistantDelta(messages: ChatMessage[], assistantId: string, delta: string): ChatMessage[] {
+function appendAssistantDelta(
+  messages: ChatMessage[],
+  assistantId: string,
+  delta: string,
+): ChatMessage[] {
   return updateAssistantMessage(messages, assistantId, (message) => ({
     ...message,
     content: message.content + delta,
   }));
 }
 
-function completeAssistantMessage(messages: ChatMessage[], assistantId: string, output: string): ChatMessage[] {
+function completeAssistantMessage(
+  messages: ChatMessage[],
+  assistantId: string,
+  output: string,
+): ChatMessage[] {
   return updateAssistantMessage(messages, assistantId, (message) => ({
     ...message,
     content: output || message.content,
@@ -64,7 +76,11 @@ function completeAssistantMessage(messages: ChatMessage[], assistantId: string, 
   }));
 }
 
-function failAssistantMessage(messages: ChatMessage[], assistantId: string, error: string): ChatMessage[] {
+function failAssistantMessage(
+  messages: ChatMessage[],
+  assistantId: string,
+  error: string,
+): ChatMessage[] {
   return updateAssistantMessage(messages, assistantId, (message) => ({
     ...message,
     status: "error",
@@ -151,7 +167,9 @@ function useChatStorage(messages: ChatMessage[], conversationId: string): void {
 
 export function useChat() {
   const [messages, setMessages] = useState<ChatMessage[]>(loadStoredMessages);
-  const [conversationId, setConversationId] = useState(() => localStorage.getItem(storageKeys.conversationId) || "");
+  const [conversationId, setConversationId] = useState(
+    () => localStorage.getItem(storageKeys.conversationId) || "",
+  );
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
