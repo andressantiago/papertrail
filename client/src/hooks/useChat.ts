@@ -7,6 +7,7 @@ import type { ApiStatus, ChatMessage, StreamEvent } from "../types";
 const INITIAL_STATUS: ApiStatus = { configured: false, model: "loading" };
 
 type SetConversationId = (conversationId: string) => void;
+type SetError = (error: string | null) => void;
 type UpdateMessages = (update: (messages: ChatMessage[]) => ChatMessage[]) => void;
 
 function createMessage(role: ChatMessage["role"], content: string, status: ChatMessage["status"]): ChatMessage {
@@ -106,15 +107,9 @@ function handleStreamEvent(
   }
 }
 
-export function useChat() {
+function useApiStatus(setError: SetError) {
   const [status, setStatus] = useState<ApiStatus>(INITIAL_STATUS);
   const [statusLoading, setStatusLoading] = useState(true);
-  const [messages, setMessages] = useState<ChatMessage[]>(loadStoredMessages);
-  const [conversationId, setConversationId] = useState(() => localStorage.getItem(storageKeys.conversationId) || "");
-  const [input, setInput] = useState("");
-  const [streaming, setStreaming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -139,8 +134,12 @@ export function useChat() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [setError]);
 
+  return { status, setStatus, statusLoading };
+}
+
+function useChatStorage(messages: ChatMessage[], conversationId: string): void {
   useEffect(() => {
     localStorage.setItem(storageKeys.messages, JSON.stringify(messages));
   }, [messages]);
@@ -148,6 +147,18 @@ export function useChat() {
   useEffect(() => {
     persistConversationId(conversationId);
   }, [conversationId]);
+}
+
+export function useChat() {
+  const [messages, setMessages] = useState<ChatMessage[]>(loadStoredMessages);
+  const [conversationId, setConversationId] = useState(() => localStorage.getItem(storageKeys.conversationId) || "");
+  const [input, setInput] = useState("");
+  const [streaming, setStreaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { status, setStatus, statusLoading } = useApiStatus(setError);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useChatStorage(messages, conversationId);
 
   async function submitMessage(): Promise<void> {
     const text = input.trim();

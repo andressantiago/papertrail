@@ -30,6 +30,15 @@ type OpenAIStreamRequestBody = {
   input?: unknown;
 };
 
+type OpenAIStream = Awaited<ReturnType<typeof streamConversationResponse>>;
+type OpenAIStreamEvent = OpenAIStream extends AsyncIterable<infer Event> ? Event : never;
+
+type StreamState = {
+  completed: boolean;
+  output: string;
+  responseId?: string;
+};
+
 const app = express();
 const clientDistPath = path.resolve(process.cwd(), "client", "dist");
 
@@ -37,6 +46,57 @@ app.use(express.json());
 
 function writeNdjson(res: express.Response, payload: unknown): void {
   res.write(`${JSON.stringify(payload)}\n`);
+}
+
+function configureNdjsonStream(res: express.Response): void {
+  res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders();
+}
+
+function attachAbortOnClose(res: express.Response, abortController: AbortController, state: StreamState): void {
+  res.on("close", () => {
+    if (!state.completed && !res.writableEnded) {
+      abortController.abort();
+    }
+  });
+}
+
+function readTrimmedInput(body: OpenAIStreamRequestBody): string {
+  return typeof body.input === "string" ? body.input.trim() : "";
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
+function writeOpenAIStreamEvent(
+  res: express.Response,
+  event: OpenAIStreamEvent,
+  conversationId: string,
+  state: StreamState,
+): void {
+  switch (event.type) {
+    case "response.created":
+      state.responseId = event.response.id;
+      writeNdjson(res, { type: "metadata", conversationId, responseId: state.responseId });
+      return;
+    case "response.output_text.delta":
+      state.output += event.delta;
+      writeNdjson(res, { type: "delta", delta: event.delta });
+      return;
+    case "response.completed":
+      state.output = event.response.output_text || state.output;
+      state.completed = true;
+      writeNdjson(res, { type: "done", output: state.output });
+      return;
+    case "response.failed":
+      throw new Error(event.response.error?.message || "OpenAI response failed.");
+    case "error":
+      throw new Error(event.message);
+  }
 }
 
 app.get<never, OpenAIStatusResponse>("/api/openai/status", (req, res) => {
@@ -92,7 +152,7 @@ app.post<{ conversationId: string }, ErrorResponse, OpenAIStreamRequestBody>(
     }
 
     const conversationId = req.params.conversationId.trim();
-    const input = typeof req.body.input === "string" ? req.body.input.trim() : "";
+    const input = readTrimmedInput(req.body);
 
     if (!conversationId) {
       return res.status(400).json({ error: "Conversation ID is required." });
@@ -103,72 +163,26 @@ app.post<{ conversationId: string }, ErrorResponse, OpenAIStreamRequestBody>(
     }
 
     const abortController = new AbortController();
-    let responseId: string | undefined;
-    let output = "";
-    let completed = false;
+    const streamState: StreamState = { completed: false, output: "" };
 
-    res.on("close", () => {
-      if (!completed && !res.writableEnded) {
-        abortController.abort();
-      }
-    });
+    attachAbortOnClose(res, abortController, streamState);
 
     try {
       const stream = await streamConversationResponse(conversationId, input, {
         signal: abortController.signal,
       });
 
-      res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
-      res.setHeader("Cache-Control", "no-cache, no-transform");
-      res.setHeader("Connection", "keep-alive");
-      res.setHeader("X-Accel-Buffering", "no");
-      res.flushHeaders();
+      configureNdjsonStream(res);
 
       for await (const event of stream) {
-        if (event.type === "response.created") {
-          responseId = event.response.id;
-          writeNdjson(res, {
-            type: "metadata",
-            conversationId,
-            responseId,
-          });
-          continue;
-        }
-
-        if (event.type === "response.output_text.delta") {
-          output += event.delta;
-          writeNdjson(res, {
-            type: "delta",
-            delta: event.delta,
-          });
-          continue;
-        }
-
-        if (event.type === "response.completed") {
-          output = event.response.output_text || output;
-          completed = true;
-          writeNdjson(res, {
-            type: "done",
-            output,
-          });
-          continue;
-        }
-
-        if (event.type === "response.failed") {
-          const message = event.response.error?.message || "OpenAI response failed.";
-          throw new Error(message);
-        }
-
-        if (event.type === "error") {
-          throw new Error(event.message);
-        }
+        writeOpenAIStreamEvent(res, event, conversationId, streamState);
       }
 
-      if (!completed) {
-        completed = true;
+      if (!streamState.completed) {
+        streamState.completed = true;
         writeNdjson(res, {
           type: "done",
-          output,
+          output: streamState.output,
         });
       }
 
@@ -186,7 +200,7 @@ app.post<{ conversationId: string }, ErrorResponse, OpenAIStreamRequestBody>(
 
       writeNdjson(res, {
         type: "error",
-        error: error instanceof Error ? error.message : "OpenAI stream failed.",
+        error: getErrorMessage(error, "OpenAI stream failed."),
       });
       return res.end();
     }

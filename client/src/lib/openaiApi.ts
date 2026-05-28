@@ -41,6 +41,10 @@ function parseStreamEvent(line: string): StreamEvent {
   return JSON.parse(line) as StreamEvent;
 }
 
+function parseStreamLines(lines: string[]): StreamEvent[] {
+  return lines.map((line) => line.trim()).filter(Boolean).map(parseStreamEvent);
+}
+
 async function* readStreamEvents(body: ReadableStream<Uint8Array>): AsyncGenerator<StreamEvent> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
@@ -58,19 +62,13 @@ async function* readStreamEvents(body: ReadableStream<Uint8Array>): AsyncGenerat
       const lines = buffer.split("\n");
       buffer = lines.pop() || "";
 
-      for (const line of lines) {
-        const trimmed = line.trim();
-
-        if (trimmed) {
-          yield parseStreamEvent(trimmed);
-        }
+      for (const event of parseStreamLines(lines)) {
+        yield event;
       }
     }
 
-    buffer += decoder.decode();
-
-    if (buffer.trim()) {
-      yield parseStreamEvent(buffer.trim());
+    for (const event of parseStreamLines([buffer + decoder.decode()])) {
+      yield event;
     }
   } finally {
     reader.releaseLock();
