@@ -1,0 +1,21 @@
+export type ApiStatus = {
+  configured: boolean;
+  model: string;
+};
+
+export type MessageRole = "user" | "assistant";
+
+export type ChatMessage = {
+  id: string;
+  role: MessageRole;
+  content: string;
+  createdAt: string;
+  status: "streaming" | "complete" | "error";
+  error?: string;
+};
+
+export type StreamEvent =
+  | { type: "metadata"; conversationId: string; responseId: string }
+  | { type: "delta"; delta: string }
+  | { type: "done"; output: string }
+  | { type: "error"; error: string };
