@@ -1,31 +1,28 @@
-import type { ApiStatus } from "../types";
 import { IconButton } from "./IconButton";
 import { PlusIcon } from "./icons/PlusIcon";
 import { SunIcon } from "./icons/SunIcon";
-import { ModelPill } from "./ModelPill";
 import { StatusDot } from "./StatusDot";
 
 type TopBarProps = {
-  status: ApiStatus;
+  apiReady: boolean;
   statusLabel: string;
-  statusLoading: boolean;
   newChatDisabled: boolean;
+  themeLabel: string;
   onNewChat: () => void;
+  onThemeToggle: () => void;
 };
 
 export function TopBar({
-  status,
+  apiReady,
   statusLabel,
-  statusLoading,
   newChatDisabled,
+  themeLabel,
   onNewChat,
+  onThemeToggle,
 }: TopBarProps): React.JSX.Element {
   return (
     <header className="topbar">
       <div className="brand-group">
-        <div className="brand-mark" aria-hidden="true">
-          P
-        </div>
         <span className="brand-name">Papertrail</span>
       </div>
       <div className="status-group">
@@ -38,12 +35,11 @@ export function TopBar({
           <PlusIcon />
           <span>New chat</span>
         </button>
-        <ModelPill model={status.model} />
         <div className="api-status">
-          <StatusDot configured={status.configured && !statusLoading} />
+          <StatusDot ready={apiReady} />
           <span>{statusLabel}</span>
         </div>
-        <IconButton label="Theme">
+        <IconButton label={themeLabel} onClick={onThemeToggle}>
           <SunIcon />
         </IconButton>
       </div>

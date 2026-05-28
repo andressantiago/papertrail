@@ -1,29 +1,53 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import { useChat } from "../hooks/useChat";
+import { useTheme } from "../hooks/useTheme";
 import { Composer } from "./Composer";
 import { TopBar } from "./TopBar";
 import { Transcript } from "./Transcript";
 
+const BOTTOM_FOLLOW_THRESHOLD_PX = 80;
+
+function isNearScrollBottom(element: HTMLDivElement): boolean {
+  return (
+    element.scrollHeight - element.scrollTop - element.clientHeight <= BOTTOM_FOLLOW_THRESHOLD_PX
+  );
+}
+
 export function App(): React.JSX.Element {
   const chat = useChat();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const { themeLabel, toggleTheme } = useTheme();
+  const apiReady = chat.status.configured && !chat.statusLoading;
+  const chatScrollRef = useRef<HTMLDivElement | null>(null);
+  const shouldFollowBottomRef = useRef(true);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+  const updateBottomFollow = useCallback(() => {
+    const chatScroll = chatScrollRef.current;
+
+    if (chatScroll) {
+      shouldFollowBottomRef.current = isNearScrollBottom(chatScroll);
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    const chatScroll = chatScrollRef.current;
+
+    if (chatScroll && shouldFollowBottomRef.current) {
+      chatScroll.scrollTop = chatScroll.scrollHeight;
+    }
   }, [chat.messages]);
 
   return (
     <div className="app-shell">
       <TopBar
-        status={chat.status}
+        apiReady={apiReady}
         statusLabel={chat.statusLabel}
-        statusLoading={chat.statusLoading}
         newChatDisabled={chat.streaming && !chat.messages.length}
         onNewChat={chat.startNewChat}
+        themeLabel={themeLabel}
+        onThemeToggle={toggleTheme}
       />
-      <div className="chat-scroll">
+      <div ref={chatScrollRef} className="chat-scroll" onScroll={updateBottomFollow}>
         <Transcript messages={chat.messages} />
-        <div ref={scrollRef} />
       </div>
       <footer className="composer-wrap">
         <Composer

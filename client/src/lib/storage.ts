@@ -1,9 +1,14 @@
-import type { ChatMessage } from "../types";
+import type { ChatMessage, ThemeMode } from "../types";
 
 export const storageKeys = {
   conversationId: "papertrail.conversationId",
   messages: "papertrail.messages",
+  theme: "papertrail.theme",
 };
+
+export function loadStoredTheme(): ThemeMode {
+  return localStorage.getItem(storageKeys.theme) === "dark" ? "dark" : "light";
+}
 
 export function loadStoredMessages(): ChatMessage[] {
   try {

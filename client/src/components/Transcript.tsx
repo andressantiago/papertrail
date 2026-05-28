@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { formatDateDivider } from "../lib/dateFormat";
 import type { ChatMessage } from "../types";
 import { BotIcon } from "./icons/BotIcon";
 import { MessageBubble } from "./MessageBubble";
@@ -9,11 +10,7 @@ type TranscriptProps = {
 
 export function Transcript({ messages }: TranscriptProps): React.JSX.Element {
   const dateLabel = useMemo(() => {
-    return new Intl.DateTimeFormat(undefined, {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }).format(new Date());
+    return formatDateDivider(new Date());
   }, []);
 
   return (
@@ -27,7 +24,7 @@ export function Transcript({ messages }: TranscriptProps): React.JSX.Element {
         messages.map((message) => <MessageBubble key={message.id} message={message} />)
       ) : (
         <section className="empty-state">
-          <div className="bot-avatar is-large" aria-hidden="true">
+          <div className="empty-state-icon" aria-hidden="true">
             <BotIcon />
           </div>
           <h1>Ask the API anything.</h1>

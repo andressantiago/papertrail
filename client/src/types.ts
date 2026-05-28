@@ -5,6 +5,8 @@ export type ApiStatus = {
 
 export type MessageRole = "user" | "assistant";
 
+export type ThemeMode = "light" | "dark";
+
 export type ChatMessage = {
   id: string;
   role: MessageRole;
