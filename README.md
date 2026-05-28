@@ -1,0 +1,74 @@
+# Papertrail
+
+A local React + Express chat interface backed by the OpenAI API.
+
+## Setup
+
+Clone the repository:
+
+```sh
+git clone <repository-url>
+cd papertrail
+```
+
+Install dependencies:
+
+```sh
+npm install
+```
+
+Create your local environment file:
+
+```sh
+cp .env.example .env
+```
+
+Then edit `.env` and set your OpenAI API key:
+
+```sh
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+You can also configure the model and server settings in `.env`:
+
+```sh
+OPENAI_MODEL=gpt-5.5
+HOST=127.0.0.1
+PORT=3000
+```
+
+## Development
+
+Run the Express API and Vite client together:
+
+```sh
+npm run dev
+```
+
+The client runs through Vite, and API requests are proxied to the Express server.
+
+## Production Build
+
+Build the server and client:
+
+```sh
+npm run build
+```
+
+Start the built Express server:
+
+```sh
+npm start
+```
+
+In production, Express serves the built client from `client/dist`.
+
+## Checks
+
+Run the main project checks:
+
+```sh
+npm run lint
+npm run typecheck
+npm run format:check
+```
