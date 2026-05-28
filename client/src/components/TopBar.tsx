@@ -22,9 +22,7 @@ export function TopBar({
 }: TopBarProps): React.JSX.Element {
   return (
     <header className="topbar">
-      <div className="brand-group">
-        <span className="brand-name">Papertrail</span>
-      </div>
+      <span className="brand-name">Papertrail</span>
       <div className="status-group">
         <button
           className="new-chat-button"
@@ -35,9 +33,14 @@ export function TopBar({
           <PlusIcon />
           <span>New chat</span>
         </button>
-        <div className="api-status">
+        <div
+          className="api-status"
+          role="status"
+          aria-label={statusLabel}
+          data-label={statusLabel}
+          title={statusLabel}
+        >
           <StatusDot ready={apiReady} />
-          <span>{statusLabel}</span>
         </div>
         <IconButton label={themeLabel} onClick={onThemeToggle}>
           <SunIcon />

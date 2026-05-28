@@ -12,7 +12,6 @@
   text-rendering: geometricPrecision;
   --bg: #f7f7f7;
   --surface: #ffffff;
-  --surface-soft: #fbfbfb;
   --line: #dedede;
   --line-strong: #b8b8b8;
   --text: #171717;
@@ -44,7 +43,6 @@
   color-scheme: dark;
   --bg: #111111;
   --surface: #181818;
-  --surface-soft: #202020;
   --line: #303030;
   --line-strong: #484848;
   --text: #f2f2f2;
@@ -115,7 +113,6 @@ svg {
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
-  background: var(--bg);
 }
 
 .topbar {
@@ -133,7 +130,6 @@ svg {
   backdrop-filter: blur(18px);
 }
 
-.brand-group,
 .status-group,
 .api-status,
 .new-chat-button {
@@ -141,15 +137,9 @@ svg {
   align-items: center;
 }
 
-.brand-group {
-  gap: 14px;
-  min-width: 0;
-}
-
 .brand-name {
   font-size: 25px;
   font-weight: 760;
-  letter-spacing: 0;
   white-space: nowrap;
 }
 
@@ -191,6 +181,7 @@ svg {
 }
 
 .new-chat-button {
+  justify-content: center;
   gap: 8px;
   height: 40px;
   padding: 0 12px;
@@ -219,13 +210,41 @@ svg {
 }
 
 .api-status {
-  gap: 10px;
-  min-width: 116px;
+  position: relative;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   padding-left: 14px;
   border-left: 1px solid var(--line);
-  font-size: 16px;
+}
+
+.api-status::after {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--hover-shadow);
+  color: var(--text);
+  content: attr(data-label);
+  font-size: 13px;
   font-weight: 620;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
   white-space: nowrap;
+}
+
+.api-status:hover::after {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .status-dot {
@@ -260,7 +279,7 @@ svg {
   grid-template-columns: minmax(40px, 1fr) auto minmax(40px, 1fr);
   align-items: center;
   gap: 32px;
-  margin: 0 auto 28px;
+  margin-bottom: 28px;
   color: var(--muted);
   font-size: 15px;
 }
@@ -272,8 +291,6 @@ svg {
 
 .message-row {
   display: flex;
-  align-items: flex-start;
-  gap: 18px;
   margin: 6px 0 8px;
 }
 
@@ -291,7 +308,6 @@ svg {
   width: 56px;
   height: 56px;
   place-items: center;
-  flex: 0 0 auto;
   border-radius: 999px;
   background: var(--empty-icon-bg);
   color: var(--bg);
@@ -327,7 +343,6 @@ svg {
 
 .message-bubble p {
   margin: 0;
-  color: inherit;
   font-size: 17px;
   line-height: 1.42;
   white-space: pre-wrap;
@@ -340,7 +355,6 @@ svg {
   color: var(--muted);
   font-size: 14px;
   line-height: 1;
-  text-align: left;
 }
 
 .message-row.is-user .message-bubble time {
@@ -401,7 +415,7 @@ svg {
   display: grid;
   justify-items: center;
   gap: 10px;
-  margin: 17vh auto 0;
+  margin-top: 17vh;
   color: var(--muted);
   text-align: center;
 }
@@ -412,7 +426,6 @@ svg {
   font-size: clamp(25px, 4vw, 34px);
   font-weight: 760;
   line-height: 1.12;
-  letter-spacing: 0;
 }
 
 .empty-state p {
@@ -439,8 +452,6 @@ svg {
 
 .composer-input {
   position: relative;
-  flex: 1 1 auto;
-  min-width: 0;
   padding: 18px 72px 16px 20px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
@@ -479,9 +490,8 @@ svg {
   position: absolute;
   right: 16px;
   bottom: 15px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   width: 42px;
   height: 42px;
   padding: 0;
@@ -492,11 +502,6 @@ svg {
   cursor: pointer;
 }
 
-.composer-send svg {
-  width: 20px;
-  height: 20px;
-}
-
 .composer-send:hover:not(:disabled) {
   background: var(--accent-strong);
 }
@@ -504,7 +509,6 @@ svg {
 .composer-send:disabled {
   cursor: not-allowed;
   opacity: 0.55;
-  box-shadow: none;
 }
 
 @keyframes typing-dot {
@@ -544,10 +548,10 @@ svg {
     padding: 14px 16px;
   }
 
-  .brand-group,
   .status-group {
     width: 100%;
     justify-content: space-between;
+    gap: 8px;
   }
 
   .brand-name {
@@ -555,23 +559,17 @@ svg {
     font-size: 22px;
   }
 
-  .status-group {
-    gap: 8px;
-  }
-
-  .new-chat-button span,
-  .api-status span {
+  .new-chat-button span {
     display: none;
   }
 
   .new-chat-button {
     width: 40px;
     padding: 0;
-    justify-content: center;
   }
 
   .api-status {
-    min-width: auto;
+    width: 36px;
     padding-left: 10px;
   }
 
@@ -582,10 +580,6 @@ svg {
   .date-divider {
     gap: 14px;
     font-size: 14px;
-  }
-
-  .message-row {
-    gap: 10px;
   }
 
   .empty-state-icon {
@@ -613,10 +607,6 @@ svg {
 
   .composer-wrap {
     padding: 0 12px 12px;
-  }
-
-  .composer {
-    width: 100%;
   }
 
   .composer-input {
