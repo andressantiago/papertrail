@@ -1,3 +1,4 @@
+import path from "node:path";
 import "dotenv/config";
 
 const openAIApiKeyPlaceholder = "your_openai_api_key_here";
@@ -12,6 +13,9 @@ type AppConfig = {
   host: string;
   port: number;
   openAI: OpenAIConfig;
+  uploads: {
+    directory: string;
+  };
 };
 
 function parsePort(value: string | undefined): number {
@@ -36,8 +40,15 @@ function readOpenAIConfig(): OpenAIConfig {
   };
 }
 
+function readUploadDirectory(): string {
+  return path.resolve(process.cwd(), process.env.PAPERTRAIL_UPLOAD_DIR || "uploads/files");
+}
+
 export const config: AppConfig = {
   host: process.env.HOST || "127.0.0.1",
   port: parsePort(process.env.PORT),
   openAI: readOpenAIConfig(),
+  uploads: {
+    directory: readUploadDirectory(),
+  },
 };

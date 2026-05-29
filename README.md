@@ -35,7 +35,11 @@ You can also configure the model and server settings in `.env`:
 OPENAI_MODEL=gpt-5.5
 HOST=127.0.0.1
 PORT=3000
+PAPERTRAIL_UPLOAD_DIR=uploads/files
 ```
+
+`PAPERTRAIL_UPLOAD_DIR` controls where uploaded files are stored. The default `uploads/`
+directory is ignored by git because it contains local runtime data.
 
 ## Development
 

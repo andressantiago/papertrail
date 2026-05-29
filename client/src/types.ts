@@ -1,3 +1,5 @@
+import type { AcceptedFileExtension } from "../../shared/fileUpload";
+
 export type ApiStatus = {
   configured: boolean;
   model: string;
@@ -6,6 +8,18 @@ export type ApiStatus = {
 export type MessageRole = "user" | "assistant";
 
 export type ThemeMode = "light" | "dark";
+
+export type WorkspaceView = "files" | "chat";
+
+export type FileExtension = AcceptedFileExtension;
+
+export type StoredFile = {
+  id: string;
+  name: string;
+  extension: FileExtension;
+  size: number;
+  uploadedAt: string;
+};
 
 export type ChatMessage = {
   id: string;

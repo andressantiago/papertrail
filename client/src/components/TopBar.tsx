@@ -1,38 +1,49 @@
+import type { WorkspaceView } from "../types";
 import { IconButton } from "./IconButton";
 import { PlusIcon } from "./icons/PlusIcon";
 import { SunIcon } from "./icons/SunIcon";
 import { StatusDot } from "./StatusDot";
+import { WorkspaceTabs } from "./WorkspaceTabs";
 
 type TopBarProps = {
+  activeWorkspace: WorkspaceView;
   apiReady: boolean;
   statusLabel: string;
   newChatDisabled: boolean;
   themeLabel: string;
+  onWorkspaceChange: (workspace: WorkspaceView) => void;
   onNewChat: () => void;
   onThemeToggle: () => void;
 };
 
 export function TopBar({
+  activeWorkspace,
   apiReady,
   statusLabel,
   newChatDisabled,
   themeLabel,
+  onWorkspaceChange,
   onNewChat,
   onThemeToggle,
 }: TopBarProps): React.JSX.Element {
   return (
     <header className="topbar">
-      <span className="brand-name">Papertrail</span>
+      <div className="topbar-primary">
+        <span className="brand-name">Papertrail</span>
+        <WorkspaceTabs activeWorkspace={activeWorkspace} onWorkspaceChange={onWorkspaceChange} />
+      </div>
       <div className="status-group">
-        <button
-          className="new-chat-button"
-          type="button"
-          onClick={onNewChat}
-          disabled={newChatDisabled}
-        >
-          <PlusIcon />
-          <span>New chat</span>
-        </button>
+        {activeWorkspace === "chat" ? (
+          <button
+            className="new-chat-button"
+            type="button"
+            onClick={onNewChat}
+            disabled={newChatDisabled}
+          >
+            <PlusIcon />
+            <span>New chat</span>
+          </button>
+        ) : null}
         <div
           className="api-status"
           role="status"

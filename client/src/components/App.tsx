@@ -1,7 +1,10 @@
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useChat } from "../hooks/useChat";
+import { useFiles } from "../hooks/useFiles";
 import { useTheme } from "../hooks/useTheme";
+import type { WorkspaceView } from "../types";
 import { Composer } from "./Composer";
+import { FileExplorer } from "./FileExplorer";
 import { TopBar } from "./TopBar";
 import { Transcript } from "./Transcript";
 
@@ -14,7 +17,9 @@ function isNearScrollBottom(element: HTMLDivElement): boolean {
 }
 
 export function App(): React.JSX.Element {
+  const [workspace, setWorkspace] = useState<WorkspaceView>("files");
   const chat = useChat();
+  const files = useFiles();
   const { themeLabel, toggleTheme } = useTheme();
   const apiReady = chat.status.configured && !chat.statusLoading;
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
@@ -39,28 +44,49 @@ export function App(): React.JSX.Element {
   return (
     <div className="app-shell">
       <TopBar
+        activeWorkspace={workspace}
         apiReady={apiReady}
         statusLabel={chat.statusLabel}
         newChatDisabled={chat.streaming && !chat.messages.length}
+        onWorkspaceChange={setWorkspace}
         onNewChat={chat.startNewChat}
         themeLabel={themeLabel}
         onThemeToggle={toggleTheme}
       />
-      <div ref={chatScrollRef} className="chat-scroll" onScroll={updateBottomFollow}>
-        <Transcript messages={chat.messages} />
-      </div>
-      <footer className="composer-wrap">
-        <Composer
-          value={chat.input}
-          disabled={chat.disabled}
-          busy={chat.streaming}
-          error={chat.error}
-          onChange={chat.setInput}
-          onSubmit={() => {
-            void chat.submitMessage();
-          }}
-        />
-      </footer>
+      {workspace === "chat" ? (
+        <>
+          <div ref={chatScrollRef} className="chat-scroll" onScroll={updateBottomFollow}>
+            <Transcript messages={chat.messages} />
+          </div>
+          <footer className="composer-wrap">
+            <Composer
+              value={chat.input}
+              disabled={chat.disabled}
+              busy={chat.streaming}
+              error={chat.error}
+              onChange={chat.setInput}
+              onSubmit={() => {
+                void chat.submitMessage();
+              }}
+            />
+          </footer>
+        </>
+      ) : (
+        <div className="files-scroll">
+          <FileExplorer
+            files={files.files}
+            loading={files.loading}
+            uploading={files.uploading}
+            error={files.error}
+            onRefresh={() => {
+              void files.refreshFiles();
+            }}
+            onUploadFiles={(fileList) => {
+              void files.uploadFiles(fileList);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

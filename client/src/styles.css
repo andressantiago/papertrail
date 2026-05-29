@@ -130,9 +130,17 @@ svg {
   backdrop-filter: blur(18px);
 }
 
+.topbar-primary {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-width: 0;
+}
+
 .status-group,
 .api-status,
-.new-chat-button {
+.new-chat-button,
+.workspace-tabs {
   display: flex;
   align-items: center;
 }
@@ -146,6 +154,46 @@ svg {
 .status-group {
   gap: 14px;
   min-width: 0;
+}
+
+.workspace-tabs {
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.workspace-tab {
+  min-width: 68px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 680;
+  cursor: pointer;
+}
+
+.workspace-tab.is-active {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.workspace-tab:hover {
+  color: var(--text);
+}
+
+.workspace-tab:focus,
+.icon-button:focus {
+  outline: 0;
+}
+
+.workspace-tab:focus-visible,
+.icon-button:focus-visible {
+  outline: 2px solid var(--line-strong);
+  outline-offset: 2px;
 }
 
 .icon-button {
@@ -166,25 +214,15 @@ svg {
   color: var(--icon-hover-color);
 }
 
-.icon-button:focus {
-  outline: 0;
-}
-
-.icon-button:focus-visible {
-  outline: 2px solid var(--line-strong);
-  outline-offset: 2px;
-}
-
 .icon-button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
 
-.new-chat-button {
-  justify-content: center;
-  gap: 8px;
+.new-chat-button,
+.file-upload-button,
+.file-refresh-button {
   height: 40px;
-  padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
@@ -194,17 +232,28 @@ svg {
   cursor: pointer;
 }
 
+.new-chat-button {
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+
 .new-chat-button svg {
   width: 18px;
   height: 18px;
 }
 
-.new-chat-button:hover:not(:disabled) {
+.new-chat-button:hover:not(:disabled),
+.file-upload-button:hover:not(:disabled),
+.file-refresh-button:hover:not(:disabled) {
   border-color: var(--line-strong);
   box-shadow: var(--hover-shadow);
 }
 
-.new-chat-button:disabled {
+.new-chat-button:disabled,
+.file-upload-button:disabled,
+.file-refresh-button:disabled,
+.composer-send:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -391,7 +440,8 @@ svg {
 }
 
 .bubble-error,
-.composer-error {
+.composer-error,
+.file-error {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -405,7 +455,8 @@ svg {
 }
 
 .bubble-error svg,
-.composer-error svg {
+.composer-error svg,
+.file-error svg {
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
@@ -507,7 +558,6 @@ svg {
 }
 
 .composer-send:disabled {
-  cursor: not-allowed;
   opacity: 0.55;
 }
 
@@ -548,15 +598,29 @@ svg {
     padding: 14px 16px;
   }
 
+  .topbar-primary {
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
   .status-group {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 8px;
   }
 
   .brand-name {
     margin-right: auto;
     font-size: 22px;
+  }
+
+  .workspace-tabs {
+    flex: 0 0 auto;
+  }
+
+  .workspace-tab {
+    min-width: 56px;
   }
 
   .new-chat-button span {
