@@ -76,3 +76,11 @@ npm run lint
 npm run typecheck
 npm run format:check
 ```
+
+Run the unit tests:
+
+```sh
+npm test
+npm run test:watch
+npm run test:coverage
+```

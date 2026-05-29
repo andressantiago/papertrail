@@ -157,6 +157,11 @@ function useApiStatus(setError: SetError) {
 
 function useChatStorage(messages: ChatMessage[], conversationId: string): void {
   useEffect(() => {
+    if (!messages.length) {
+      localStorage.removeItem(storageKeys.messages);
+      return;
+    }
+
     localStorage.setItem(storageKeys.messages, JSON.stringify(messages));
   }, [messages]);
 
