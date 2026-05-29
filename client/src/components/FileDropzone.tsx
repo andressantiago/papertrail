@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent } from "react";
 import { ACCEPTED_FILE_INPUT_ACCEPT, ACCEPTED_FILE_LABEL } from "../../../shared/fileUpload";
+import { UploadButton } from "./UploadButton";
 
 type FileDropzoneProps = {
   uploading: boolean;
@@ -12,12 +13,13 @@ function hasFiles(event: DragEvent<HTMLElement>): boolean {
 }
 
 export function FileDropzone({ uploading, onUploadFiles }: FileDropzoneProps): React.JSX.Element {
+  const supportedTypesId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
   const [dragging, setDragging] = useState(false);
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>): void {
-    if (event.currentTarget.files) {
+    if (event.currentTarget.files && !uploading) {
       onUploadFiles(event.currentTarget.files);
     }
 
@@ -55,21 +57,21 @@ export function FileDropzone({ uploading, onUploadFiles }: FileDropzoneProps): R
     event.preventDefault();
     dragDepthRef.current = 0;
     setDragging(false);
-    onUploadFiles(event.dataTransfer.files);
+
+    if (!uploading) {
+      onUploadFiles(event.dataTransfer.files);
+    }
   }
 
   return (
-    <section
+    <div
       className={dragging ? "file-dropzone is-dragging" : "file-dropzone"}
+      aria-label="Add files"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <div>
-        <p className="file-dropzone-title">Upload files</p>
-        <p className="file-dropzone-meta">{ACCEPTED_FILE_LABEL}</p>
-      </div>
       <input
         ref={fileInputRef}
         type="file"
@@ -78,14 +80,14 @@ export function FileDropzone({ uploading, onUploadFiles }: FileDropzoneProps): R
         onChange={handleInputChange}
         hidden
       />
-      <button
-        className="file-upload-button"
-        type="button"
+      <UploadButton
+        describedBy={supportedTypesId}
+        uploading={uploading}
         onClick={() => fileInputRef.current?.click()}
-        disabled={uploading}
-      >
-        {uploading ? "Uploading..." : "Choose files"}
-      </button>
-    </section>
+      />
+      <div id={supportedTypesId} className="file-upload-popover" role="tooltip">
+        Supported: {ACCEPTED_FILE_LABEL}
+      </div>
+    </div>
   );
 }

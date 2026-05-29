@@ -7,7 +7,7 @@ A Dead Simple RAG client.
 Clone the repository:
 
 ```sh
-git clone <repository-url>
+git clone https://github.com/andressantiago/papertrail.git
 cd papertrail
 ```
 

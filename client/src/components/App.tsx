@@ -4,9 +4,9 @@ import { useFiles } from "../hooks/useFiles";
 import { useTheme } from "../hooks/useTheme";
 import type { WorkspaceView } from "../types";
 import { Composer } from "./Composer";
-import { FileExplorer } from "./FileExplorer";
 import { TopBar } from "./TopBar";
 import { Transcript } from "./Transcript";
+import { UploadedFileList } from "./UploadedFileList";
 
 const BOTTOM_FOLLOW_THRESHOLD_PX = 80;
 
@@ -73,22 +73,24 @@ export function App(): React.JSX.Element {
         </>
       ) : (
         <div className="files-scroll">
-          <FileExplorer
-            deletingFileIds={files.deletingFileIds}
-            files={files.files}
-            loading={files.loading}
-            uploading={files.uploading}
-            error={files.error}
-            onDeleteFile={(fileId) => {
-              void files.deleteFile(fileId);
-            }}
-            onRefresh={() => {
-              void files.refreshFiles();
-            }}
-            onUploadFiles={(fileList) => {
-              void files.uploadFiles(fileList);
-            }}
-          />
+          <main className="file-explorer" aria-label="Files workspace">
+            <UploadedFileList
+              deletingFileIds={files.deletingFileIds}
+              files={files.files}
+              loading={files.loading}
+              uploading={files.uploading}
+              error={files.error}
+              onDeleteFile={(fileId) => {
+                void files.deleteFile(fileId);
+              }}
+              onRefresh={() => {
+                void files.refreshFiles();
+              }}
+              onUploadFiles={(fileList) => {
+                void files.uploadFiles(fileList);
+              }}
+            />
+          </main>
         </div>
       )}
     </div>

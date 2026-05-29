@@ -6,6 +6,10 @@ For frontend or UI validation, use the in-app Browser plugin first. Follow the B
 
 Only use a fallback when the Browser plugin path is genuinely unavailable after following its setup instructions, and state that reason in the response.
 
+## Components
+
+All components require their own file. Do not define additional components inside another component's file; extract them into separate component files instead.
+
 ## Git
 
 Do not run `git add`, stage files, or otherwise update the index unless the user explicitly asks for staging.
