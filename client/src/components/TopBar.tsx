@@ -1,4 +1,5 @@
 import type { WorkspaceView } from "../types";
+import papertrailIcon from "../assets/papertrail-icon.png";
 import { IconButton } from "./IconButton";
 import { PlusIcon } from "./icons/PlusIcon";
 import { SunIcon } from "./icons/SunIcon";
@@ -29,7 +30,7 @@ export function TopBar({
   return (
     <header className="topbar">
       <div className="topbar-primary">
-        <span className="brand-name">Papertrail</span>
+        <img className="brand-logo" src={papertrailIcon} alt="Papertrail" />
         <WorkspaceTabs activeWorkspace={activeWorkspace} onWorkspaceChange={onWorkspaceChange} />
       </div>
       <div className="status-group">

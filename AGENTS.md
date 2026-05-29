@@ -9,3 +9,7 @@ Only use a fallback when the Browser plugin path is genuinely unavailable after 
 ## Git
 
 Do not run `git add`, stage files, or otherwise update the index unless the user explicitly asks for staging.
+
+## Dead Code Cleanup
+
+When removing references or usages for any symbol, component, asset, style, or file, verify whether it still has other references or usages elsewhere in the codebase. If it appears to be dead code, ask before deleting it unless the cleanup is explicitly part of the user's requested change.

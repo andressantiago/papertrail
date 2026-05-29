@@ -1,6 +1,6 @@
-# Papertrail
+# <img src="client/src/assets/papertrail-icon.png" alt="" width="40" height="40" align="top"> Papertrail
 
-A local React + Express chat interface backed by the OpenAI API.
+A Dead Simple RAG client.
 
 ## Setup
 

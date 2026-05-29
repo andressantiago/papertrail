@@ -33,8 +33,6 @@
   --composer-bg: rgba(255, 255, 255, 0.96);
   --placeholder: #777777;
   --hover-shadow: 0 6px 18px rgba(24, 24, 24, 0.08);
-  --empty-icon-bg: #222222;
-  --empty-icon-shadow: 0 9px 22px rgba(24, 24, 24, 0.18);
   --bubble-shadow: 0 8px 26px rgba(24, 24, 24, 0.05);
   --error-border: #cccccc;
 }
@@ -64,8 +62,6 @@
   --composer-bg: rgba(24, 24, 24, 0.98);
   --placeholder: #9f9f9f;
   --hover-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
-  --empty-icon-bg: #e5e5e5;
-  --empty-icon-shadow: 0 9px 22px rgba(0, 0, 0, 0.34);
   --bubble-shadow: 0 8px 26px rgba(0, 0, 0, 0.24);
   --error-border: #555555;
 }
@@ -145,10 +141,17 @@ svg {
   align-items: center;
 }
 
-.brand-name {
-  font-size: 25px;
-  font-weight: 760;
-  white-space: nowrap;
+.brand-logo {
+  display: block;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+:root[data-theme="dark"] .brand-logo {
+  filter: invert(1);
 }
 
 .status-group {
@@ -220,8 +223,7 @@ svg {
 }
 
 .new-chat-button,
-.file-upload-button,
-.file-refresh-button {
+.file-upload-button {
   height: 40px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -244,15 +246,13 @@ svg {
 }
 
 .new-chat-button:hover:not(:disabled),
-.file-upload-button:hover:not(:disabled),
-.file-refresh-button:hover:not(:disabled) {
+.file-upload-button:hover:not(:disabled) {
   border-color: var(--line-strong);
   box-shadow: var(--hover-shadow);
 }
 
 .new-chat-button:disabled,
 .file-upload-button:disabled,
-.file-refresh-button:disabled,
 .composer-send:disabled {
   cursor: not-allowed;
   opacity: 0.6;
@@ -352,22 +352,6 @@ svg {
   margin-top: 16px;
 }
 
-.empty-state-icon {
-  display: grid;
-  width: 56px;
-  height: 56px;
-  place-items: center;
-  border-radius: 999px;
-  background: var(--empty-icon-bg);
-  color: var(--bg);
-  box-shadow: var(--empty-icon-shadow);
-}
-
-.empty-state-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
 .message-bubble {
   width: fit-content;
   max-width: min(680px, 100%);
@@ -463,24 +447,13 @@ svg {
 }
 
 .empty-state {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
   margin-top: 17vh;
   color: var(--muted);
   text-align: center;
 }
 
-.empty-state h1 {
-  margin: 10px 0 0;
-  color: var(--text);
-  font-size: clamp(25px, 4vw, 34px);
-  font-weight: 760;
-  line-height: 1.12;
-}
-
 .empty-state p {
-  max-width: 420px;
+  max-width: none;
   margin: 0;
   font-size: 16px;
   line-height: 1.5;
@@ -610,11 +583,6 @@ svg {
     gap: 8px;
   }
 
-  .brand-name {
-    margin-right: auto;
-    font-size: 22px;
-  }
-
   .workspace-tabs {
     flex: 0 0 auto;
   }
@@ -644,16 +612,6 @@ svg {
   .date-divider {
     gap: 14px;
     font-size: 14px;
-  }
-
-  .empty-state-icon {
-    width: 36px;
-    height: 36px;
-  }
-
-  .empty-state-icon svg {
-    width: 19px;
-    height: 19px;
   }
 
   .message-bubble {

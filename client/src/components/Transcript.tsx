@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { formatDateDivider } from "../lib/dateFormat";
 import type { ChatMessage } from "../types";
-import { BotIcon } from "./icons/BotIcon";
 import { MessageBubble } from "./MessageBubble";
 
 type TranscriptProps = {
@@ -24,11 +23,7 @@ export function Transcript({ messages }: TranscriptProps): React.JSX.Element {
         messages.map((message) => <MessageBubble key={message.id} message={message} />)
       ) : (
         <section className="empty-state">
-          <div className="empty-state-icon" aria-hidden="true">
-            <BotIcon />
-          </div>
-          <h1>Ask the API anything.</h1>
-          <p>Start a conversation and follow up without repeating context.</p>
+          <p>Start a conversation with your Papertrail.</p>
         </section>
       )}
     </main>

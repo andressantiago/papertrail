@@ -1,5 +1,7 @@
 import type { StoredFile } from "../types";
 import { FileCard } from "./FileCard";
+import { IconButton } from "./IconButton";
+import { RefreshIcon } from "./icons/RefreshIcon";
 
 type UploadedFileListProps = {
   deletingFileIds: ReadonlySet<string>;
@@ -20,14 +22,9 @@ export function UploadedFileList({
     <section className="file-list-section" aria-label="Uploaded files">
       <div className="file-list-header">
         <h1>Files</h1>
-        <button
-          className="file-refresh-button"
-          type="button"
-          onClick={onRefresh}
-          disabled={loading}
-        >
-          Refresh
-        </button>
+        <IconButton label="Refresh files" onClick={onRefresh} disabled={loading}>
+          <RefreshIcon />
+        </IconButton>
       </div>
 
       {loading ? <p className="file-state">Loading files...</p> : null}
