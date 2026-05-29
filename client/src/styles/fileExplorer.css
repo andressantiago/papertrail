@@ -105,7 +105,12 @@
 }
 
 .file-card-body {
+  flex: 1 1 auto;
   min-width: 0;
+}
+
+.file-card > .icon-button {
+  margin-left: auto;
 }
 
 .file-card h2 {

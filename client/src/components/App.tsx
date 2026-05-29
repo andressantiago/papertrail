@@ -74,10 +74,14 @@ export function App(): React.JSX.Element {
       ) : (
         <div className="files-scroll">
           <FileExplorer
+            deletingFileIds={files.deletingFileIds}
             files={files.files}
             loading={files.loading}
             uploading={files.uploading}
             error={files.error}
+            onDeleteFile={(fileId) => {
+              void files.deleteFile(fileId);
+            }}
             onRefresh={() => {
               void files.refreshFiles();
             }}

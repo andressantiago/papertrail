@@ -2,14 +2,18 @@ import type { StoredFile } from "../types";
 import { FileCard } from "./FileCard";
 
 type UploadedFileListProps = {
+  deletingFileIds: ReadonlySet<string>;
   files: StoredFile[];
   loading: boolean;
+  onDeleteFile: (fileId: string) => void;
   onRefresh: () => void;
 };
 
 export function UploadedFileList({
+  deletingFileIds,
   files,
   loading,
+  onDeleteFile,
   onRefresh,
 }: UploadedFileListProps): React.JSX.Element {
   return (
@@ -31,7 +35,12 @@ export function UploadedFileList({
       {!loading && files.length > 0 ? (
         <div className="file-grid">
           {files.map((file) => (
-            <FileCard key={file.id} file={file} />
+            <FileCard
+              key={file.id}
+              deleting={deletingFileIds.has(file.id)}
+              file={file}
+              onDelete={onDeleteFile}
+            />
           ))}
         </div>
       ) : null}

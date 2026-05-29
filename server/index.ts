@@ -7,6 +7,7 @@ import {
   FileStorageError,
   MAX_FILE_COUNT,
   MAX_FILE_SIZE_BYTES,
+  deleteStoredFile,
   listStoredFiles,
   saveUploadedFiles,
   type StoredFile,
@@ -197,6 +198,27 @@ app.post<never, FilesResponse | ErrorResponse>("/api/files", async (req, res) =>
     return res.status(apiError.statusCode).json({ error: apiError.message });
   }
 });
+
+app.delete<{ fileId: string }, FilesResponse | ErrorResponse>(
+  "/api/files/:fileId",
+  async (req, res) => {
+    try {
+      await deleteStoredFile(config.uploads.directory, req.params.fileId);
+
+      return res.json({
+        files: await listStoredFiles(config.uploads.directory),
+      });
+    } catch (error) {
+      const apiError = getFileApiError(error);
+
+      if (apiError.statusCode >= 500) {
+        console.error("File delete failed:", error);
+      }
+
+      return res.status(apiError.statusCode).json({ error: apiError.message });
+    }
+  },
+);
 
 app.get<never, OpenAIStatusResponse>("/api/openai/status", (req, res) => {
   res.json({

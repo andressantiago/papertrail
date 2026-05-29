@@ -6,6 +6,10 @@ type FilesResponse = {
 
 const FILES_ENDPOINT = "/api/files";
 
+function getFileEndpoint(fileId: string): string {
+  return `${FILES_ENDPOINT}/${encodeURIComponent(fileId)}`;
+}
+
 async function readError(response: Response, fallback: string): Promise<string> {
   try {
     const payload = (await response.json()) as { error?: string };
@@ -26,6 +30,15 @@ async function readJson<T>(response: Response, fallbackError: string): Promise<T
 export async function fetchStoredFiles(signal?: AbortSignal): Promise<StoredFile[]> {
   const response = await fetch(FILES_ENDPOINT, { signal });
   const payload = await readJson<FilesResponse>(response, "Unable to load files.");
+
+  return payload.files;
+}
+
+export async function deleteStoredFile(fileId: string): Promise<StoredFile[]> {
+  const response = await fetch(getFileEndpoint(fileId), {
+    method: "DELETE",
+  });
+  const payload = await readJson<FilesResponse>(response, "Unable to delete file.");
 
   return payload.files;
 }

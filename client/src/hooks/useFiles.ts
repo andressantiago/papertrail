@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { fetchStoredFiles, uploadStoredFiles } from "../lib/filesApi";
+import type { Dispatch, SetStateAction } from "react";
+import {
+  deleteStoredFile as deleteStoredFileRequest,
+  fetchStoredFiles,
+  uploadStoredFiles,
+} from "../lib/filesApi";
 import type { StoredFile } from "../types";
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -12,11 +17,64 @@ function sortFiles(files: StoredFile[]): StoredFile[] {
   });
 }
 
+function useDeletingFileIds() {
+  const [deletingFileIds, setDeletingFileIds] = useState<ReadonlySet<string>>(() => new Set());
+
+  const markDeleting = useCallback((fileId: string) => {
+    setDeletingFileIds((currentFileIds) => new Set(currentFileIds).add(fileId));
+  }, []);
+
+  const clearDeleting = useCallback((fileId: string) => {
+    setDeletingFileIds((currentFileIds) => {
+      const nextFileIds = new Set(currentFileIds);
+      nextFileIds.delete(fileId);
+      return nextFileIds;
+    });
+  }, []);
+
+  return { clearDeleting, deletingFileIds, markDeleting };
+}
+
+function useInitialFilesLoad(
+  setFiles: Dispatch<SetStateAction<StoredFile[]>>,
+  setError: Dispatch<SetStateAction<string | null>>,
+  setLoading: Dispatch<SetStateAction<boolean>>,
+): void {
+  useEffect(() => {
+    let active = true;
+
+    fetchStoredFiles()
+      .then((nextFiles) => {
+        if (active) {
+          setFiles(sortFiles(nextFiles));
+          setError(null);
+        }
+      })
+      .catch((loadError: unknown) => {
+        if (active) {
+          setError(getErrorMessage(loadError, "Unable to load files."));
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [setError, setFiles, setLoading]);
+}
+
 export function useFiles() {
   const [files, setFiles] = useState<StoredFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { clearDeleting, deletingFileIds, markDeleting } = useDeletingFileIds();
+
+  useInitialFilesLoad(setFiles, setError, setLoading);
 
   const loadFiles = useCallback(async () => {
     try {
@@ -55,33 +113,25 @@ export function useFiles() {
     }
   }, []);
 
-  useEffect(() => {
-    let active = true;
+  const deleteFile = useCallback(
+    async (fileId: string) => {
+      markDeleting(fileId);
+      setError(null);
 
-    fetchStoredFiles()
-      .then((nextFiles) => {
-        if (active) {
-          setFiles(sortFiles(nextFiles));
-          setError(null);
-        }
-      })
-      .catch((loadError: unknown) => {
-        if (active) {
-          setError(getErrorMessage(loadError, "Unable to load files."));
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
+      try {
+        setFiles(sortFiles(await deleteStoredFileRequest(fileId)));
+      } catch (deleteError) {
+        setError(getErrorMessage(deleteError, "Unable to delete file."));
+      } finally {
+        clearDeleting(fileId);
+      }
+    },
+    [clearDeleting, markDeleting],
+  );
 
   return {
+    deleteFile,
+    deletingFileIds,
     error,
     files,
     loading,

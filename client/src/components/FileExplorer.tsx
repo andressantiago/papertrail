@@ -4,19 +4,23 @@ import { AlertIcon } from "./icons/AlertIcon";
 import { UploadedFileList } from "./UploadedFileList";
 
 type FileExplorerProps = {
+  deletingFileIds: ReadonlySet<string>;
   files: StoredFile[];
   loading: boolean;
   uploading: boolean;
   error: string | null;
+  onDeleteFile: (fileId: string) => void;
   onRefresh: () => void;
   onUploadFiles: (files: FileList | File[]) => void;
 };
 
 export function FileExplorer({
+  deletingFileIds,
   files,
   loading,
   uploading,
   error,
+  onDeleteFile,
   onRefresh,
   onUploadFiles,
 }: FileExplorerProps): React.JSX.Element {
@@ -29,7 +33,13 @@ export function FileExplorer({
           <span>{error}</span>
         </div>
       ) : null}
-      <UploadedFileList files={files} loading={loading} onRefresh={onRefresh} />
+      <UploadedFileList
+        deletingFileIds={deletingFileIds}
+        files={files}
+        loading={loading}
+        onDeleteFile={onDeleteFile}
+        onRefresh={onRefresh}
+      />
     </main>
   );
 }

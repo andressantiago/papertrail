@@ -70,6 +70,22 @@ function createSafeFileName(originalName: string): string {
   return `${sanitizeBaseName(baseName)}.${extension}`;
 }
 
+function isSafeStoredFileId(fileId: string): boolean {
+  if (!fileId.length) {
+    return false;
+  }
+
+  for (const character of fileId) {
+    const characterCode = character.charCodeAt(0);
+
+    if (character === "/" || character === "\\" || characterCode < 32 || characterCode === 127) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function assertInsideDirectory(directory: string, filePath: string): void {
   const relativePath = path.relative(directory, filePath);
 
@@ -91,6 +107,10 @@ function createCandidateName(fileName: string, attempt: number): string {
 
 function isFileExistsError(error: unknown): boolean {
   return error instanceof Error && "code" in error && error.code === "EEXIST";
+}
+
+function isFileNotFoundError(error: unknown): boolean {
+  return error instanceof Error && "code" in error && error.code === "ENOENT";
 }
 
 function isStoredFile(file: StoredFile | null): file is StoredFile {
@@ -166,6 +186,43 @@ async function saveUploadedFile(
   const savedName = await writeUniqueFile(uploadDirectory, fileName, file.buffer);
 
   return readStoredFile(uploadDirectory, savedName);
+}
+
+export async function deleteStoredFile(uploadDirectory: string, fileId: string): Promise<void> {
+  const fileName = fileId.trim();
+
+  if (!isSafeStoredFileId(fileName)) {
+    throw new FileStorageError("Invalid upload filename.");
+  }
+
+  if (!getFileExtension(fileName)) {
+    throw new FileStorageError(getUnsupportedFileTypeMessage());
+  }
+
+  await ensureUploadDirectory(uploadDirectory);
+
+  const filePath = path.join(uploadDirectory, fileName);
+  assertInsideDirectory(uploadDirectory, filePath);
+
+  try {
+    const stats = await fs.stat(filePath);
+
+    if (!stats.isFile()) {
+      throw new FileStorageError("File not found.", 404);
+    }
+
+    await fs.unlink(filePath);
+  } catch (error) {
+    if (error instanceof FileStorageError) {
+      throw error;
+    }
+
+    if (isFileNotFoundError(error)) {
+      throw new FileStorageError("File not found.", 404);
+    }
+
+    throw error;
+  }
 }
 
 export async function listStoredFiles(uploadDirectory: string): Promise<StoredFile[]> {
