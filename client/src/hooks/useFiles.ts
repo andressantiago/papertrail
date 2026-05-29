@@ -4,8 +4,8 @@ import {
   deleteStoredFile as deleteStoredFileRequest,
   fetchStoredFiles,
   uploadStoredFiles,
-} from "../lib/filesApi";
-import type { StoredFile } from "../types";
+} from "@client/lib/filesApi";
+import type { StoredFile } from "@client/types";
 
 function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;

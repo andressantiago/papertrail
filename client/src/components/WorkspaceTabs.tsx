@@ -1,4 +1,4 @@
-import type { WorkspaceView } from "../types";
+import type { WorkspaceView } from "@client/types";
 
 type WorkspaceTabsProps = {
   activeWorkspace: WorkspaceView;

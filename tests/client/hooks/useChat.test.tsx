@@ -1,18 +1,14 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useChat } from "../../../client/src/hooks/useChat";
-import {
-  createConversation,
-  fetchStatus,
-  streamAssistantResponse,
-} from "../../../client/src/lib/openaiApi";
-import { storageKeys } from "../../../client/src/lib/storage";
+import { useChat } from "@client/hooks/useChat";
+import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
+import { storageKeys } from "@client/lib/storage";
 
-vi.mock("../../../client/src/lib/id", () => ({
+vi.mock("@client/lib/id", () => ({
   makeId: vi.fn((prefix: string) => `${prefix}-id`),
 }));
 
-vi.mock("../../../client/src/lib/openaiApi", () => ({
+vi.mock("@client/lib/openaiApi", () => ({
   createConversation: vi.fn(),
   fetchStatus: vi.fn(),
   streamAssistantResponse: vi.fn(),

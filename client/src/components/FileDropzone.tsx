@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent } from "react";
-import { ACCEPTED_FILE_INPUT_ACCEPT, ACCEPTED_FILE_LABEL } from "../../../shared/fileUpload";
-import { UploadButton } from "./UploadButton";
+import { UploadButton } from "@client/components/UploadButton";
+import { ACCEPTED_FILE_INPUT_ACCEPT, ACCEPTED_FILE_LABEL } from "@shared/fileUpload";
 
 type FileDropzoneProps = {
   uploading: boolean;

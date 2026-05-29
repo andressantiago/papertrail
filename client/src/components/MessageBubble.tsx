@@ -1,7 +1,7 @@
-import type { ChatMessage } from "../types";
-import { formatMessageTime } from "../lib/dateFormat";
-import { AlertIcon } from "./icons/AlertIcon";
-import { TypingIndicator } from "./TypingIndicator";
+import { AlertIcon } from "@client/components/icons/AlertIcon";
+import { TypingIndicator } from "@client/components/TypingIndicator";
+import { formatMessageTime } from "@client/lib/dateFormat";
+import type { ChatMessage } from "@client/types";
 
 type MessageBubbleProps = {
   message: ChatMessage;

@@ -1,8 +1,12 @@
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
+import tsconfigPaths from "vite-tsconfig-paths";
+
+const workspaceRoot = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tsconfigPaths({ root: workspaceRoot, projects: ["tsconfig.paths.json"] })],
   test: {
     coverage: {
       provider: "v8",

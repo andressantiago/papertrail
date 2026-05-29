@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { KeyboardEvent } from "react";
-import { AlertIcon } from "./icons/AlertIcon";
-import { SendIcon } from "./icons/SendIcon";
+import { AlertIcon } from "@client/components/icons/AlertIcon";
+import { SendIcon } from "@client/components/icons/SendIcon";
 
 type ComposerProps = {
   value: string;

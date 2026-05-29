@@ -1,4 +1,4 @@
-import { PlusIcon } from "./icons/PlusIcon";
+import { PlusIcon } from "@client/components/icons/PlusIcon";
 
 type UploadButtonProps = {
   describedBy: string;

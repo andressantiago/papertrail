@@ -1,4 +1,4 @@
-import type { ApiStatus, StreamEvent } from "../types";
+import type { ApiStatus, StreamEvent } from "@client/types";
 
 type ConversationResponse = {
   conversationId: string;

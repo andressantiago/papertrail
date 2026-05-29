@@ -7,7 +7,7 @@ import {
   FILE_UPLOAD_FIELD,
   MAX_FILE_COUNT,
   MAX_FILE_SIZE_BYTES,
-} from "../../shared/fileUpload";
+} from "@shared/fileUpload";
 
 describe("file upload constants", () => {
   it("keeps the upload field and size limits stable", () => {

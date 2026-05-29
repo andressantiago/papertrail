@@ -1,12 +1,12 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { useChat } from "../hooks/useChat";
-import { useFiles } from "../hooks/useFiles";
-import { useTheme } from "../hooks/useTheme";
-import type { WorkspaceView } from "../types";
-import { Composer } from "./Composer";
-import { TopBar } from "./TopBar";
-import { Transcript } from "./Transcript";
-import { UploadedFileList } from "./UploadedFileList";
+import { Composer } from "@client/components/Composer";
+import { TopBar } from "@client/components/TopBar";
+import { Transcript } from "@client/components/Transcript";
+import { UploadedFileList } from "@client/components/UploadedFileList";
+import { useChat } from "@client/hooks/useChat";
+import { useFiles } from "@client/hooks/useFiles";
+import { useTheme } from "@client/hooks/useTheme";
+import type { WorkspaceView } from "@client/types";
 
 const BOTTOM_FOLLOW_THRESHOLD_PX = 80;
 

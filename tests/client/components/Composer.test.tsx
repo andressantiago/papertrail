@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { Composer } from "../../../client/src/components/Composer";
+import { Composer } from "@client/components/Composer";
 
 function renderComposer(overrides: Partial<React.ComponentProps<typeof Composer>> = {}) {
   const props: React.ComponentProps<typeof Composer> = {

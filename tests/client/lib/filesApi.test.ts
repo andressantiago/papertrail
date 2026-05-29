@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  deleteStoredFile,
-  fetchStoredFiles,
-  uploadStoredFiles,
-} from "../../../client/src/lib/filesApi";
-import type { StoredFile } from "../../../client/src/types";
+import { deleteStoredFile, fetchStoredFiles, uploadStoredFiles } from "@client/lib/filesApi";
+import type { StoredFile } from "@client/types";
 
 const storedFiles: StoredFile[] = [
   {

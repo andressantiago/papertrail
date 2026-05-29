@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatFileSize } from "../../../client/src/lib/fileFormat";
+import { formatFileSize } from "@client/lib/fileFormat";
 
 describe("formatFileSize", () => {
   it("formats byte, kilobyte, and megabyte values", () => {

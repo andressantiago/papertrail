@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@client/*": ["./client/src/*"],
+      "@server/*": ["./server/*"],
+      "@shared/*": ["./shared/*"],
+      "@tests/*": ["./tests/*"]
+    }
+  }
+}

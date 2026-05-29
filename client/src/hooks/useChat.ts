@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { makeId } from "../lib/id";
-import { createConversation, fetchStatus, streamAssistantResponse } from "../lib/openaiApi";
-import { loadStoredMessages, storageKeys } from "../lib/storage";
-import type { ApiStatus, ChatMessage, StreamEvent } from "../types";
+import { makeId } from "@client/lib/id";
+import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
+import { loadStoredMessages, storageKeys } from "@client/lib/storage";
+import type { ApiStatus, ChatMessage, StreamEvent } from "@client/types";
 
 const INITIAL_STATUS: ApiStatus = { configured: false, model: "loading" };
 

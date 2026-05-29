@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { FileCard } from "../../../client/src/components/FileCard";
-import type { StoredFile } from "../../../client/src/types";
+import { FileCard } from "@client/components/FileCard";
+import type { StoredFile } from "@client/types";
 
 const file: StoredFile = {
   id: "notes.txt",

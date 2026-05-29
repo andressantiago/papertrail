@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { loadStoredTheme, storageKeys } from "../lib/storage";
-import type { ThemeMode } from "../types";
+import { loadStoredTheme, storageKeys } from "@client/lib/storage";
+import type { ThemeMode } from "@client/types";
 
 type UseThemeResult = {
   themeLabel: string;

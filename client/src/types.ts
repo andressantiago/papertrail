@@ -1,4 +1,4 @@
-import type { AcceptedFileExtension } from "../../shared/fileUpload";
+import type { AcceptedFileExtension } from "@shared/fileUpload";
 
 export type ApiStatus = {
   configured: boolean;

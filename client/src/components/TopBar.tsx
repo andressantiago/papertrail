@@ -1,10 +1,10 @@
-import type { WorkspaceView } from "../types";
-import papertrailIcon from "../assets/papertrail-icon.png";
-import { IconButton } from "./IconButton";
-import { PlusIcon } from "./icons/PlusIcon";
-import { SunIcon } from "./icons/SunIcon";
-import { StatusDot } from "./StatusDot";
-import { WorkspaceTabs } from "./WorkspaceTabs";
+import papertrailIcon from "@client/assets/papertrail-icon.png";
+import { IconButton } from "@client/components/IconButton";
+import { PlusIcon } from "@client/components/icons/PlusIcon";
+import { SunIcon } from "@client/components/icons/SunIcon";
+import { StatusDot } from "@client/components/StatusDot";
+import { WorkspaceTabs } from "@client/components/WorkspaceTabs";
+import type { WorkspaceView } from "@client/types";
 
 type TopBarProps = {
   activeWorkspace: WorkspaceView;

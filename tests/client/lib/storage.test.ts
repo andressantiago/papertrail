@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadStoredMessages, loadStoredTheme, storageKeys } from "../../../client/src/lib/storage";
+import { loadStoredMessages, loadStoredTheme, storageKeys } from "@client/lib/storage";
 
 describe("storage helpers", () => {
   it("loads dark mode only when the saved value is dark", () => {

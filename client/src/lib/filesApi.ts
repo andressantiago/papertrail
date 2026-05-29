@@ -1,4 +1,4 @@
-import type { StoredFile } from "../types";
+import type { StoredFile } from "@client/types";
 
 type FilesResponse = {
   files: StoredFile[];

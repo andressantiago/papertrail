@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { useTheme } from "../../../client/src/hooks/useTheme";
-import { storageKeys } from "../../../client/src/lib/storage";
+import { useTheme } from "@client/hooks/useTheme";
+import { storageKeys } from "@client/lib/storage";
 
 describe("useTheme", () => {
   it("loads the saved theme and toggles it", () => {

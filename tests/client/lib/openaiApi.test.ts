@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  createConversation,
-  fetchStatus,
-  streamAssistantResponse,
-} from "../../../client/src/lib/openaiApi";
-import type { StreamEvent } from "../../../client/src/types";
+import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
+import type { StreamEvent } from "@client/types";
 
 function jsonResponse(payload: unknown, init: ResponseInit = {}): Response {
   return new Response(JSON.stringify(payload), {

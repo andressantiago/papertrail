@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { formatDateDivider } from "../lib/dateFormat";
-import type { ChatMessage } from "../types";
-import { MessageBubble } from "./MessageBubble";
+import { MessageBubble } from "@client/components/MessageBubble";
+import { formatDateDivider } from "@client/lib/dateFormat";
+import type { ChatMessage } from "@client/types";
 
 type TranscriptProps = {
   messages: ChatMessage[];

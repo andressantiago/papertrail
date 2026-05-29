@@ -7,7 +7,7 @@ import {
   deleteStoredFile,
   listStoredFiles,
   saveUploadedFiles,
-} from "../../server/fileStorage";
+} from "@server/fileStorage";
 
 let uploadDirectory = "";
 

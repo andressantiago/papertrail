@@ -1,4 +1,4 @@
-import type { ChatMessage, ThemeMode } from "../types";
+import type { ChatMessage, ThemeMode } from "@client/types";
 
 export const storageKeys = {
   conversationId: "papertrail.conversationId",

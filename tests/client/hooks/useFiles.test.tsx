@@ -1,14 +1,10 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useFiles } from "../../../client/src/hooks/useFiles";
-import {
-  deleteStoredFile,
-  fetchStoredFiles,
-  uploadStoredFiles,
-} from "../../../client/src/lib/filesApi";
-import type { StoredFile } from "../../../client/src/types";
+import { useFiles } from "@client/hooks/useFiles";
+import { deleteStoredFile, fetchStoredFiles, uploadStoredFiles } from "@client/lib/filesApi";
+import type { StoredFile } from "@client/types";
 
-vi.mock("../../../client/src/lib/filesApi", () => ({
+vi.mock("@client/lib/filesApi", () => ({
   deleteStoredFile: vi.fn(),
   fetchStoredFiles: vi.fn(),
   uploadStoredFiles: vi.fn(),

@@ -1,7 +1,7 @@
-import { formatFileSize } from "../lib/fileFormat";
-import type { StoredFile } from "../types";
-import { IconButton } from "./IconButton";
-import { TrashIcon } from "./icons/TrashIcon";
+import { IconButton } from "@client/components/IconButton";
+import { TrashIcon } from "@client/components/icons/TrashIcon";
+import { formatFileSize } from "@client/lib/fileFormat";
+import type { StoredFile } from "@client/types";
 
 type FileCardProps = {
   deleting: boolean;

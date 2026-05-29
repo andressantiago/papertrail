@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDateDivider, formatMessageTime } from "../../../client/src/lib/dateFormat";
+import { formatDateDivider, formatMessageTime } from "@client/lib/dateFormat";
 
 describe("date formatting", () => {
   const date = new Date("2026-05-29T13:05:00.000Z");

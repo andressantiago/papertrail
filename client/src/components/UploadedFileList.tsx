@@ -1,9 +1,9 @@
-import type { StoredFile } from "../types";
-import { FileCard } from "./FileCard";
-import { FileDropzone } from "./FileDropzone";
-import { IconButton } from "./IconButton";
-import { AlertIcon } from "./icons/AlertIcon";
-import { RefreshIcon } from "./icons/RefreshIcon";
+import { FileCard } from "@client/components/FileCard";
+import { FileDropzone } from "@client/components/FileDropzone";
+import { IconButton } from "@client/components/IconButton";
+import { AlertIcon } from "@client/components/icons/AlertIcon";
+import { RefreshIcon } from "@client/components/icons/RefreshIcon";
+import type { StoredFile } from "@client/types";
 
 type UploadedFileListProps = {
   deletingFileIds: ReadonlySet<string>;
