@@ -1,4 +1,4 @@
-# <img src="client/src/assets/papertrail-icon.png" alt="" width="40" height="40" align="top"> Papertrail
+# <img src="client/src/assets/papertrail-icon.png" alt="" width="40" height="40" align="top"> Papertrail - [![CI](https://github.com/andressantiago/papertrail/actions/workflows/ci.yml/badge.svg)](https://github.com/andressantiago/papertrail/actions/workflows/ci.yml)
 
 A Dead Simple RAG client.
 
