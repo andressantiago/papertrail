@@ -13,4 +13,13 @@ export {
   updateChatMessage,
 } from "./stores/chatStore.js";
 export type { ChatMessageRole, ChatMessageStatus, StoredChatMessage } from "./stores/chatStore.js";
-export { deleteFile, getFile, insertFiles, listFiles } from "./stores/fileStore.js";
+export {
+  deleteFile,
+  getFile,
+  getFileOpenAIMetadata,
+  insertFiles,
+  listFiles,
+  recordOpenAIFileUpload,
+  setFileOpenAIUploadStatus,
+} from "./stores/fileStore.js";
+export type { FileOpenAIMetadata } from "./stores/fileStore.js";

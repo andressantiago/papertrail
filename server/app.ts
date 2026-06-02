@@ -1,6 +1,7 @@
 import path from "node:path";
 import express from "express";
 import type { PapertrailDatabase } from "./database.js";
+import type { OpenAIFileUploader } from "./openaiFileUploadService.js";
 import { registerChatRoutes } from "./routes/chatRoutes.js";
 import { registerFileRoutes } from "./routes/fileRoutes.js";
 import { registerOpenAIRoutes } from "./routes/openaiRoutes.js";
@@ -9,6 +10,7 @@ import { registerPreferenceRoutes } from "./routes/preferencesRoutes.js";
 type CreateAppOptions = {
   clientDistPath?: string;
   database: PapertrailDatabase;
+  openAIFileUploader?: OpenAIFileUploader;
   openAIModel: string;
   serveStatic?: boolean;
   uploadDirectory: string;
@@ -39,7 +41,9 @@ export function createApp(options: CreateAppOptions): express.Express {
   app.use(express.json());
   registerPreferenceRoutes(app, database);
   registerChatRoutes(app, database);
-  registerFileRoutes(app, database, uploadDirectory);
+  registerFileRoutes(app, database, uploadDirectory, {
+    openAIFileUploader: options.openAIFileUploader,
+  });
   registerOpenAIRoutes(app, database, openAIModel);
   registerStaticRoutes(app, clientDistPath, serveStatic);
 
