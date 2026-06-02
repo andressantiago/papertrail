@@ -81,6 +81,19 @@ describe("fileStorage", () => {
     );
   });
 
+  it("skips filenames that are already reserved by the database", async () => {
+    const files = await saveUploadedFiles(
+      uploadDirectory,
+      [createUpload("notes.txt", "new")],
+      new Set(["notes.txt"]),
+    );
+
+    expect(files.map((file) => file.name)).toEqual(["notes-2.txt"]);
+    await expect(fs.readFile(path.join(uploadDirectory, "notes-2.txt"), "utf8")).resolves.toBe(
+      "new",
+    );
+  });
+
   it("lists only supported stored files newest first", async () => {
     await fs.writeFile(path.join(uploadDirectory, "older.txt"), "older");
     await wait(20);
@@ -107,6 +120,12 @@ describe("fileStorage", () => {
       message: "File not found.",
       statusCode: 404,
     });
+  });
+
+  it("allows missing bytes during metadata cleanup", async () => {
+    await expect(
+      deleteStoredFile(uploadDirectory, "missing.txt", { missingOk: true }),
+    ).resolves.toBeUndefined();
   });
 
   it("rejects unsafe or unsupported file ids before deleting", async () => {

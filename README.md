@@ -36,10 +36,11 @@ OPENAI_MODEL=gpt-5.5
 HOST=127.0.0.1
 PORT=3000
 PAPERTRAIL_UPLOAD_DIR=uploads/files
+PAPERTRAIL_DB_PATH=data/papertrail.sqlite
 ```
 
-`PAPERTRAIL_UPLOAD_DIR` controls where uploaded files are stored. The default `uploads/`
-directory is ignored by git because it contains local runtime data.
+`PAPERTRAIL_UPLOAD_DIR` controls where uploaded files are stored. `PAPERTRAIL_DB_PATH`
+controls where local SQLite app metadata is stored.
 
 ## Development
 

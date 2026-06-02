@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { makeId } from "@client/lib/id";
+import { clearChatState, fetchChatState } from "@client/lib/chatApi";
 import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
-import { loadStoredMessages, storageKeys } from "@client/lib/storage";
 import type { ApiStatus, ChatMessage, StreamEvent } from "@client/types";
 
 const INITIAL_STATUS: ApiStatus = { configured: false, model: "loading" };
@@ -34,15 +34,6 @@ function getStatusLabel(statusLoading: boolean, configured: boolean): string {
   }
 
   return configured ? "API ready" : "API missing";
-}
-
-function persistConversationId(conversationId: string): void {
-  if (conversationId) {
-    localStorage.setItem(storageKeys.conversationId, conversationId);
-    return;
-  }
-
-  localStorage.removeItem(storageKeys.conversationId);
 }
 
 function updateAssistantMessage(
@@ -155,38 +146,55 @@ function useApiStatus(setError: SetError) {
   return { status, setStatus, statusLoading };
 }
 
-function useChatStorage(messages: ChatMessage[], conversationId: string): void {
-  useEffect(() => {
-    if (!messages.length) {
-      localStorage.removeItem(storageKeys.messages);
-      return;
-    }
-
-    localStorage.setItem(storageKeys.messages, JSON.stringify(messages));
-  }, [messages]);
+function usePersistedChat(setError: SetError) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState("");
+  const [chatLoading, setChatLoading] = useState(true);
 
   useEffect(() => {
-    persistConversationId(conversationId);
-  }, [conversationId]);
+    const abortController = new AbortController();
+
+    fetchChatState(abortController.signal)
+      .then((chatState) => {
+        setMessages(chatState.messages);
+        setConversationId(chatState.conversationId);
+      })
+      .catch((chatError: unknown) => {
+        if (!abortController.signal.aborted) {
+          setError(getErrorMessage(chatError, "Unable to load chat."));
+        }
+      })
+      .finally(() => {
+        if (!abortController.signal.aborted) {
+          setChatLoading(false);
+        }
+      });
+
+    return () => {
+      abortController.abort();
+    };
+  }, [setError]);
+
+  return { chatLoading, conversationId, messages, setConversationId, setMessages };
+}
+
+function clearPersistedChat(): void {
+  void clearChatState().catch(() => undefined);
 }
 
 export function useChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>(loadStoredMessages);
-  const [conversationId, setConversationId] = useState(
-    () => localStorage.getItem(storageKeys.conversationId) || "",
-  );
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { status, setStatus, statusLoading } = useApiStatus(setError);
+  const { chatLoading, conversationId, messages, setConversationId, setMessages } =
+    usePersistedChat(setError);
   const abortRef = useRef<AbortController | null>(null);
-
-  useChatStorage(messages, conversationId);
 
   async function submitMessage(): Promise<void> {
     const text = input.trim();
 
-    if (!text || streaming || !status.configured) {
+    if (!text || streaming || statusLoading || chatLoading || !status.configured) {
       return;
     }
 
@@ -212,8 +220,15 @@ export function useChat() {
         },
       );
 
-      await streamAssistantResponse(activeConversationId, text, abortController.signal, (event) => {
-        handleStreamEvent(event, assistantId, setMessages, setConversationId);
+      await streamAssistantResponse({
+        assistantMessageId: assistantMessage.id,
+        conversationId: activeConversationId,
+        input: text,
+        signal: abortController.signal,
+        userMessageId: userMessage.id,
+        onEvent: (event) => {
+          handleStreamEvent(event, assistantId, setMessages, setConversationId);
+        },
       });
     } catch (streamError) {
       if (abortController.signal.aborted) {
@@ -239,12 +254,11 @@ export function useChat() {
     setInput("");
     setError(null);
     setStreaming(false);
-    localStorage.removeItem(storageKeys.messages);
-    localStorage.removeItem(storageKeys.conversationId);
+    clearPersistedChat();
   }
 
   return {
-    disabled: statusLoading || !status.configured,
+    disabled: statusLoading || chatLoading || !status.configured,
     error,
     input,
     messages,
