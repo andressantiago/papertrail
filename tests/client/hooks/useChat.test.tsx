@@ -1,8 +1,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useChat } from "@client/hooks/useChat";
+import { clearChatState, fetchChatState } from "@client/lib/chatApi";
 import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
-import { storageKeys } from "@client/lib/storage";
 
 vi.mock("@client/lib/id", () => ({
   makeId: vi.fn((prefix: string) => `${prefix}-id`),
@@ -14,22 +14,35 @@ vi.mock("@client/lib/openaiApi", () => ({
   streamAssistantResponse: vi.fn(),
 }));
 
+vi.mock("@client/lib/chatApi", () => ({
+  clearChatState: vi.fn(),
+  fetchChatState: vi.fn(),
+}));
+
+const clearChatStateMock = vi.mocked(clearChatState);
 const createConversationMock = vi.mocked(createConversation);
 const fetchStatusMock = vi.mocked(fetchStatus);
+const fetchChatStateMock = vi.mocked(fetchChatState);
 const streamAssistantResponseMock = vi.mocked(streamAssistantResponse);
 
 beforeEach(() => {
+  clearChatStateMock.mockResolvedValue({ conversationId: "", messages: [] });
   createConversationMock.mockResolvedValue({
     conversationId: "conversation-1",
     model: "gpt-5.5",
   });
+  fetchChatStateMock.mockResolvedValue({ conversationId: "", messages: [] });
   fetchStatusMock.mockResolvedValue({ configured: true, model: "loading" });
-  streamAssistantResponseMock.mockImplementation(async (conversationId, input, signal, onEvent) => {
-    expect(signal.aborted).toBe(false);
-    onEvent({ type: "metadata", conversationId, responseId: "response-1" });
-    onEvent({ type: "delta", delta: `Answer to ${input}` });
-    onEvent({ type: "done", output: `Answer to ${input}` });
-  });
+  streamAssistantResponseMock.mockImplementation(
+    async ({ assistantMessageId, conversationId, input, onEvent, signal, userMessageId }) => {
+      expect(userMessageId).toBe("user-id");
+      expect(assistantMessageId).toBe("assistant-id");
+      expect(signal.aborted).toBe(false);
+      onEvent({ type: "metadata", conversationId, responseId: "response-1" });
+      onEvent({ type: "delta", delta: `Answer to ${input}` });
+      onEvent({ type: "done", output: `Answer to ${input}` });
+    },
+  );
 });
 
 describe("useChat status", () => {
@@ -60,12 +73,14 @@ describe("useChat submission", () => {
     });
 
     expect(createConversationMock).toHaveBeenCalledOnce();
-    expect(streamAssistantResponseMock).toHaveBeenCalledWith(
-      "conversation-1",
-      "What changed?",
-      expect.any(AbortSignal),
-      expect.any(Function),
-    );
+    expect(streamAssistantResponseMock).toHaveBeenCalledWith({
+      assistantMessageId: "assistant-id",
+      conversationId: "conversation-1",
+      input: "What changed?",
+      onEvent: expect.any(Function),
+      signal: expect.any(AbortSignal),
+      userMessageId: "user-id",
+    });
     expect(result.current.streaming).toBe(false);
     expect(result.current.error).toBeNull();
     expect(result.current.messages).toMatchObject([
@@ -77,7 +92,7 @@ describe("useChat submission", () => {
         status: "complete",
       },
     ]);
-    expect(localStorage.getItem(storageKeys.conversationId)).toBe("conversation-1");
+    expect(fetchChatStateMock).toHaveBeenCalledOnce();
   });
 
   it("marks the assistant message as failed when streaming errors", async () => {
@@ -104,11 +119,10 @@ describe("useChat submission", () => {
 });
 
 describe("useChat storage", () => {
-  it("starts a new chat and clears persisted state", async () => {
-    localStorage.setItem(storageKeys.conversationId, "conversation-1");
-    localStorage.setItem(
-      storageKeys.messages,
-      JSON.stringify([
+  it("loads persisted chat and clears it when starting a new chat", async () => {
+    fetchChatStateMock.mockResolvedValue({
+      conversationId: "conversation-1",
+      messages: [
         {
           id: "message-1",
           role: "user",
@@ -116,8 +130,8 @@ describe("useChat storage", () => {
           createdAt: "2026-05-29T13:05:00.000Z",
           status: "complete",
         },
-      ]),
-    );
+      ],
+    });
 
     const { result } = renderHook(() => useChat());
     await waitFor(() => expect(result.current.messages).toHaveLength(1));
@@ -128,7 +142,6 @@ describe("useChat storage", () => {
 
     expect(result.current.messages).toEqual([]);
     expect(result.current.input).toBe("");
-    expect(localStorage.getItem(storageKeys.messages)).toBeNull();
-    expect(localStorage.getItem(storageKeys.conversationId)).toBeNull();
+    expect(clearChatStateMock).toHaveBeenCalledOnce();
   });
 });

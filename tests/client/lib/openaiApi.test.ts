@@ -24,7 +24,7 @@ function streamResponse(chunks: string[]): Response {
   );
 }
 
-describe("openaiApi", () => {
+describe("openaiApi status and conversations", () => {
   it("fetches API status", async () => {
     const status = { configured: true, model: "gpt-5.5" };
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(status));
@@ -46,7 +46,9 @@ describe("openaiApi", () => {
       signal,
     });
   });
+});
 
+describe("openaiApi streaming", () => {
   it("parses newline-delimited stream events across chunks", async () => {
     const events: StreamEvent[] = [];
     const signal = new AbortController().signal;
@@ -60,8 +62,15 @@ describe("openaiApi", () => {
       );
     vi.stubGlobal("fetch", fetchMock);
 
-    await streamAssistantResponse("conversation-1", "Hello?", signal, (event) => {
-      events.push(event);
+    await streamAssistantResponse({
+      assistantMessageId: "assistant-1",
+      conversationId: "conversation-1",
+      input: "Hello?",
+      userMessageId: "user-1",
+      signal,
+      onEvent: (event) => {
+        events.push(event);
+      },
     });
 
     expect(fetchMock).toHaveBeenCalledWith("/api/openai/conversations/conversation-1/stream", {
@@ -69,7 +78,11 @@ describe("openaiApi", () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ input: "Hello?" }),
+      body: JSON.stringify({
+        input: "Hello?",
+        userMessageId: "user-1",
+        assistantMessageId: "assistant-1",
+      }),
       signal,
     });
     expect(events).toEqual([
@@ -88,7 +101,14 @@ describe("openaiApi", () => {
     );
 
     await expect(
-      streamAssistantResponse("conversation-1", "Hello?", new AbortController().signal, () => {}),
+      streamAssistantResponse({
+        assistantMessageId: "assistant-1",
+        conversationId: "conversation-1",
+        input: "Hello?",
+        onEvent: () => {},
+        signal: new AbortController().signal,
+        userMessageId: "user-1",
+      }),
     ).rejects.toThrow("OpenAI is not configured.");
   });
 
@@ -96,7 +116,14 @@ describe("openaiApi", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null)));
 
     await expect(
-      streamAssistantResponse("conversation-1", "Hello?", new AbortController().signal, () => {}),
+      streamAssistantResponse({
+        assistantMessageId: "assistant-1",
+        conversationId: "conversation-1",
+        input: "Hello?",
+        onEvent: () => {},
+        signal: new AbortController().signal,
+        userMessageId: "user-1",
+      }),
     ).rejects.toThrow("Streaming is not available in this browser.");
   });
 });

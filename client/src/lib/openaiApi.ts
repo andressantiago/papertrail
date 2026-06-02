@@ -1,8 +1,18 @@
+import { readJson, readResponseError } from "@client/lib/apiResponse";
 import type { ApiStatus, StreamEvent } from "@client/types";
 
 type ConversationResponse = {
   conversationId: string;
   model: string;
+};
+
+type StreamAssistantResponseOptions = {
+  assistantMessageId: string;
+  conversationId: string;
+  input: string;
+  onEvent: (event: StreamEvent) => void;
+  signal: AbortSignal;
+  userMessageId: string;
 };
 
 const OPENAI_ENDPOINTS = {
@@ -11,23 +21,6 @@ const OPENAI_ENDPOINTS = {
   streamConversation: (conversationId: string) =>
     `/api/openai/conversations/${encodeURIComponent(conversationId)}/stream`,
 };
-
-async function readError(response: Response, fallback: string): Promise<string> {
-  try {
-    const payload = (await response.json()) as { error?: string };
-    return payload.error || fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-async function readJson<T>(response: Response, fallbackError: string): Promise<T> {
-  if (!response.ok) {
-    throw new Error(await readError(response, fallbackError));
-  }
-
-  return response.json() as Promise<T>;
-}
 
 function getStreamingBody(response: Response): ReadableStream<Uint8Array> {
   if (!response.body) {
@@ -93,23 +86,25 @@ export async function createConversation(signal?: AbortSignal): Promise<Conversa
   return readJson<ConversationResponse>(response, "Unable to create a conversation.");
 }
 
-export async function streamAssistantResponse(
-  conversationId: string,
-  input: string,
-  signal: AbortSignal,
-  onEvent: (event: StreamEvent) => void,
-): Promise<void> {
+export async function streamAssistantResponse({
+  assistantMessageId,
+  conversationId,
+  input,
+  onEvent,
+  signal,
+  userMessageId,
+}: StreamAssistantResponseOptions): Promise<void> {
   const response = await fetch(OPENAI_ENDPOINTS.streamConversation(conversationId), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ input }),
+    body: JSON.stringify({ input, userMessageId, assistantMessageId }),
     signal,
   });
 
   if (!response.ok) {
-    throw new Error(await readError(response, "OpenAI request failed."));
+    throw new Error(await readResponseError(response, "OpenAI request failed."));
   }
 
   for await (const event of readStreamEvents(getStreamingBody(response))) {

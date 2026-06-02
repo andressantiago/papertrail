@@ -86,6 +86,20 @@ function isSafeStoredFileId(fileId: string): boolean {
   return true;
 }
 
+export function validateStoredFileId(fileId: string): string {
+  const fileName = fileId.trim();
+
+  if (!isSafeStoredFileId(fileName)) {
+    throw new FileStorageError("Invalid upload filename.");
+  }
+
+  if (!getFileExtension(fileName)) {
+    throw new FileStorageError(getUnsupportedFileTypeMessage());
+  }
+
+  return fileName;
+}
+
 function assertInsideDirectory(directory: string, filePath: string): void {
   const relativePath = path.relative(directory, filePath);
 
@@ -159,9 +173,15 @@ async function writeUniqueFile(
   uploadDirectory: string,
   fileName: string,
   buffer: Buffer,
+  reservedFileIds: Set<string>,
 ): Promise<string> {
   for (let attempt = 0; attempt < MAX_UNIQUE_FILENAME_ATTEMPTS; attempt++) {
     const candidateName = createCandidateName(fileName, attempt);
+
+    if (reservedFileIds.has(candidateName)) {
+      continue;
+    }
+
     const filePath = path.join(uploadDirectory, candidateName);
     assertInsideDirectory(uploadDirectory, filePath);
 
@@ -181,23 +201,25 @@ async function writeUniqueFile(
 async function saveUploadedFile(
   uploadDirectory: string,
   file: Express.Multer.File,
+  reservedFileIds: Set<string>,
 ): Promise<StoredFile | null> {
   const fileName = createSafeFileName(file.originalname);
-  const savedName = await writeUniqueFile(uploadDirectory, fileName, file.buffer);
+  const savedName = await writeUniqueFile(uploadDirectory, fileName, file.buffer, reservedFileIds);
+  reservedFileIds.add(savedName);
 
   return readStoredFile(uploadDirectory, savedName);
 }
 
-export async function deleteStoredFile(uploadDirectory: string, fileId: string): Promise<void> {
-  const fileName = fileId.trim();
+type DeleteStoredFileOptions = {
+  missingOk?: boolean;
+};
 
-  if (!isSafeStoredFileId(fileName)) {
-    throw new FileStorageError("Invalid upload filename.");
-  }
-
-  if (!getFileExtension(fileName)) {
-    throw new FileStorageError(getUnsupportedFileTypeMessage());
-  }
+export async function deleteStoredFile(
+  uploadDirectory: string,
+  fileId: string,
+  options: DeleteStoredFileOptions = {},
+): Promise<void> {
+  const fileName = validateStoredFileId(fileId);
 
   await ensureUploadDirectory(uploadDirectory);
 
@@ -218,6 +240,10 @@ export async function deleteStoredFile(uploadDirectory: string, fileId: string):
     }
 
     if (isFileNotFoundError(error)) {
+      if (options.missingOk) {
+        return;
+      }
+
       throw new FileStorageError("File not found.", 404);
     }
 
@@ -240,6 +266,7 @@ export async function listStoredFiles(uploadDirectory: string): Promise<StoredFi
 export async function saveUploadedFiles(
   uploadDirectory: string,
   files: Express.Multer.File[],
+  reservedFileIds = new Set<string>(),
 ): Promise<StoredFile[]> {
   if (!files.length) {
     throw new FileStorageError("Upload at least one file.");
@@ -247,9 +274,11 @@ export async function saveUploadedFiles(
 
   await ensureUploadDirectory(uploadDirectory);
 
-  const savedFiles = await Promise.all(
-    files.map((file) => saveUploadedFile(uploadDirectory, file)),
-  );
+  const savedFiles: Array<StoredFile | null> = [];
+
+  for (const file of files) {
+    savedFiles.push(await saveUploadedFile(uploadDirectory, file, reservedFileIds));
+  }
 
   return sortStoredFiles(savedFiles.filter(isStoredFile));
 }

@@ -11,28 +11,37 @@ Papertrail is a local React + Express TypeScript app for uploading documents and
 
 ## Server
 
-- `server/index.ts` owns the Express app, API routes, upload middleware, NDJSON chat streaming, and production static serving.
-- `server/config.ts` reads environment configuration for host, port, OpenAI model/API key, and upload directory.
+- `server/index.ts` initializes SQLite, creates the Express app, and starts the local server.
+- `server/app.ts` owns the Express app factory and composes API route modules with production static serving.
+- `server/config.ts` reads environment configuration for host, port, OpenAI model/API key, upload directory, and database path.
+- `server/database.ts` initializes the local SQLite schema.
+- `server/routes/*` contains focused Express route registration for files, chat state, preferences, and OpenAI APIs.
+- `server/openaiStream.ts` owns NDJSON chat streaming persistence and stream event handling.
+- `server/dataStore.ts` is the thin persistence facade used by routes and services.
+- `server/stores/*` contains focused SQLite-backed stores for app state, file metadata, and chat messages.
 - `server/openai.ts` creates the OpenAI SDK client and reports whether OpenAI is configured.
 - `server/openaiService.ts` wraps OpenAI Responses and Conversations API calls for chat behavior.
-- `server/fileStorage.ts` validates uploaded files, writes them to local disk, lists stored files, and deletes local files.
+- `server/fileStorage.ts` validates uploaded files, writes them to local disk, and deletes local file bytes.
 
 ## Client
 
 - `client/src/components/App.tsx` coordinates the files and chat workspaces.
 - `client/src/hooks/useFiles.ts` owns file list, upload, refresh, and delete state.
-- `client/src/hooks/useChat.ts` owns API status, conversation state, message streaming, and local chat persistence.
+- `client/src/hooks/useChat.ts` owns API status, conversation state, message streaming, and DB-backed chat loading/clearing through API calls.
+- `client/src/hooks/useTheme.ts` owns DB-backed theme loading and updates through API calls.
+- `client/src/lib/chatApi.ts` calls the chat state API routes.
 - `client/src/lib/filesApi.ts` calls the file API routes.
 - `client/src/lib/openaiApi.ts` calls the OpenAI status, conversation, and streaming routes.
-- `client/src/lib/storage.ts` defines browser `localStorage` keys for chat state.
+- `client/src/lib/preferencesApi.ts` calls the preferences API routes.
 - Reusable UI components live in `client/src/components`; each component should have its own file.
 
 ## Data And Storage
 
-- Uploaded files are stored on local disk under `PAPERTRAIL_UPLOAD_DIR`, defaulting to `uploads/files`.
-- The default `uploads/` directory is ignored by git because it contains local runtime data.
-- Browser chat messages and the active conversation ID are persisted in `localStorage`.
-- There is no user, workspace, project, or database model today.
+- Uploaded file bytes are stored on local disk under `PAPERTRAIL_UPLOAD_DIR`, defaulting to `uploads/files`.
+- File metadata, chat messages, the active OpenAI conversation ID, and theme are stored in SQLite under `PAPERTRAIL_DB_PATH`, defaulting to `data/papertrail.sqlite`.
+- The default `uploads/` and `data/` directories are ignored by git because they contain local runtime data.
+- Browser `localStorage` is not used for app metadata or chat/theme persistence.
+- There is no user, workspace, or project model today.
 
 ## Shared Code
 

@@ -8,7 +8,9 @@ Papertrail is a local React + Express TypeScript app.
 - Server: `server`, Express, OpenAI SDK.
 - Shared upload config and types: `shared`.
 - Upload storage: local disk under `PAPERTRAIL_UPLOAD_DIR` or `uploads/files`.
-- Main server routes live in `server/index.ts`.
+- Runtime metadata storage: local SQLite under `PAPERTRAIL_DB_PATH` or `data/papertrail.sqlite`.
+- `server/index.ts` initializes SQLite and starts the server; `server/app.ts` composes route modules from `server/routes`.
+- DB-backed persistence is exposed through the thin `server/dataStore.ts` facade and implemented in `server/stores`.
 - OpenAI Responses integration lives in `server/openaiService.ts`.
 
 For deeper architecture context, read `docs/ARCHITECTURE.md` before planning cross-cutting server/client changes.

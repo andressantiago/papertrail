@@ -24,6 +24,7 @@
     "typecheck:server": "tsc --noEmit"
   },
   "dependencies": {
+    "better-sqlite3": "^12.10.0",
     "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "multer": "^2.1.1",
@@ -36,6 +37,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.1.0",
     "@types/node": "^25.9.1",

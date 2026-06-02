@@ -28,6 +28,7 @@ export type ChatMessage = {
   createdAt: string;
   status: "streaming" | "complete" | "error";
   error?: string;
+  responseId?: string;
 };
 
 export type StreamEvent =

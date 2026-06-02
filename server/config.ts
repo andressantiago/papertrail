@@ -12,6 +12,9 @@ type OpenAIConfig = {
 type AppConfig = {
   host: string;
   port: number;
+  database: {
+    path: string;
+  };
   openAI: OpenAIConfig;
   uploads: {
     directory: string;
@@ -44,9 +47,16 @@ function readUploadDirectory(): string {
   return path.resolve(process.cwd(), process.env.PAPERTRAIL_UPLOAD_DIR || "uploads/files");
 }
 
+function readDatabasePath(): string {
+  return path.resolve(process.cwd(), process.env.PAPERTRAIL_DB_PATH || "data/papertrail.sqlite");
+}
+
 export const config: AppConfig = {
   host: process.env.HOST || "127.0.0.1",
   port: parsePort(process.env.PORT),
+  database: {
+    path: readDatabasePath(),
+  },
   openAI: readOpenAIConfig(),
   uploads: {
     directory: readUploadDirectory(),

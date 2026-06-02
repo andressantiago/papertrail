@@ -1,3 +1,4 @@
+import { readJson } from "@client/lib/apiResponse";
 import type { StoredFile } from "@client/types";
 
 type FilesResponse = {
@@ -8,23 +9,6 @@ const FILES_ENDPOINT = "/api/files";
 
 function getFileEndpoint(fileId: string): string {
   return `${FILES_ENDPOINT}/${encodeURIComponent(fileId)}`;
-}
-
-async function readError(response: Response, fallback: string): Promise<string> {
-  try {
-    const payload = (await response.json()) as { error?: string };
-    return payload.error || fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-async function readJson<T>(response: Response, fallbackError: string): Promise<T> {
-  if (!response.ok) {
-    throw new Error(await readError(response, fallbackError));
-  }
-
-  return response.json() as Promise<T>;
 }
 
 export async function fetchStoredFiles(signal?: AbortSignal): Promise<StoredFile[]> {
