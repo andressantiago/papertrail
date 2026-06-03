@@ -17,12 +17,18 @@ const SAFE_FILENAME_PARTS_REGEX = /[a-zA-Z0-9._-]+/g;
 
 export type FileExtension = AcceptedFileExtension;
 
+export type OpenAIUploadStatus = "pending" | "uploading" | "uploaded" | "failed" | "not_configured";
+
 export type StoredFile = {
   id: string;
   name: string;
   extension: FileExtension;
   size: number;
   uploadedAt: string;
+  openaiFileId?: string;
+  openaiUploadStatus?: OpenAIUploadStatus;
+  openaiUploadError?: string;
+  openaiUploadedAt?: string;
 };
 
 export class FileStorageError extends Error {

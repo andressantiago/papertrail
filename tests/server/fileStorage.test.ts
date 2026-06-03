@@ -32,7 +32,7 @@ afterEach(async () => {
   await fs.rm(uploadDirectory, { force: true, recursive: true });
 });
 
-describe("fileStorage", () => {
+describe("fileStorage upload validation", () => {
   it("rejects empty uploads", async () => {
     await expect(saveUploadedFiles(uploadDirectory, [])).rejects.toMatchObject({
       message: "Upload at least one file.",
@@ -48,7 +48,9 @@ describe("fileStorage", () => {
       "Unsupported file type. Allowed file types: .txt, .md, .doc, .docx, .pdf.",
     );
   });
+});
 
+describe("fileStorage upload filenames", () => {
   it("sanitizes uploaded filenames and normalizes extensions", async () => {
     const files = await saveUploadedFiles(uploadDirectory, [
       createUpload("../../Quarterly Report!!.PDF"),
@@ -93,7 +95,9 @@ describe("fileStorage", () => {
       "new",
     );
   });
+});
 
+describe("fileStorage listing", () => {
   it("lists only supported stored files newest first", async () => {
     await fs.writeFile(path.join(uploadDirectory, "older.txt"), "older");
     await wait(20);
@@ -104,7 +108,9 @@ describe("fileStorage", () => {
 
     expect(files.map((file) => file.name)).toEqual(["newer.pdf", "older.txt"]);
   });
+});
 
+describe("fileStorage deletion", () => {
   it("deletes stored files", async () => {
     await fs.writeFile(path.join(uploadDirectory, "notes.txt"), "notes");
 
