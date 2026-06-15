@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { deleteStoredFile, fetchStoredFiles, uploadStoredFiles } from "@client/lib/filesApi";
 import type { StoredFile } from "@client/types";
+import { createJsonResponse } from "@tests/client/lib/apiTestUtils";
 
 const storedFiles: StoredFile[] = [
   {
@@ -12,16 +13,9 @@ const storedFiles: StoredFile[] = [
   },
 ];
 
-function jsonResponse(payload: unknown, init: ResponseInit = {}): Response {
-  return new Response(JSON.stringify(payload), {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-}
-
 describe("filesApi", () => {
   it("fetches stored files", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ files: storedFiles }));
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ files: storedFiles }));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(fetchStoredFiles()).resolves.toEqual(storedFiles);
@@ -29,7 +23,7 @@ describe("filesApi", () => {
   });
 
   it("uploads files with multipart form data", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ files: storedFiles }));
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ files: storedFiles }));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(uploadStoredFiles([new File(["hello"], "notes.txt")])).resolves.toEqual(
@@ -46,7 +40,7 @@ describe("filesApi", () => {
   });
 
   it("deletes files by encoded id", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ files: [] }));
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ files: [] }));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(deleteStoredFile("report 1.pdf")).resolves.toEqual([]);
@@ -56,7 +50,7 @@ describe("filesApi", () => {
   it("uses API error messages when a request fails", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(jsonResponse({ error: "No files found." }, { status: 404 })),
+      vi.fn().mockResolvedValue(createJsonResponse({ error: "No files found." }, { status: 404 })),
     );
 
     await expect(fetchStoredFiles()).rejects.toThrow("No files found.");

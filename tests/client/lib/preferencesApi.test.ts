@@ -1,16 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { fetchPreferences, updateThemePreference } from "@client/lib/preferencesApi";
-
-function jsonResponse(payload: unknown, init: ResponseInit = {}): Response {
-  return new Response(JSON.stringify(payload), {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-}
+import { createJsonResponse } from "@tests/client/lib/apiTestUtils";
 
 describe("preferencesApi", () => {
   it("fetches preferences", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ theme: "dark" }));
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ theme: "dark" }));
     const signal = new AbortController().signal;
     vi.stubGlobal("fetch", fetchMock);
 
@@ -19,7 +13,7 @@ describe("preferencesApi", () => {
   });
 
   it("updates the theme preference", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ theme: "light" }));
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ theme: "light" }));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(updateThemePreference("light")).resolves.toEqual({ theme: "light" });

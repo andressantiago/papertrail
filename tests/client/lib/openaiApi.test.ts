@@ -1,33 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
 import type { StreamEvent } from "@client/types";
-
-function jsonResponse(payload: unknown, init: ResponseInit = {}): Response {
-  return new Response(JSON.stringify(payload), {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-}
-
-function streamResponse(chunks: string[]): Response {
-  const encoder = new TextEncoder();
-
-  return new Response(
-    new ReadableStream<Uint8Array>({
-      start(controller) {
-        for (const chunk of chunks) {
-          controller.enqueue(encoder.encode(chunk));
-        }
-        controller.close();
-      },
-    }),
-  );
-}
+import { createJsonResponse, createStreamResponse } from "@tests/client/lib/apiTestUtils";
 
 describe("openaiApi status and conversations", () => {
   it("fetches API status", async () => {
     const status = { configured: true, model: "gpt-5.5" };
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(status));
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse(status));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(fetchStatus()).resolves.toEqual(status);
@@ -37,7 +16,7 @@ describe("openaiApi status and conversations", () => {
   it("creates a conversation with a POST request", async () => {
     const response = { conversationId: "conversation-1", model: "gpt-5.5" };
     const signal = new AbortController().signal;
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(response));
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse(response));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(createConversation(signal)).resolves.toEqual(response);
@@ -55,7 +34,7 @@ describe("openaiApi streaming", () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValue(
-        streamResponse([
+        createStreamResponse([
           '{"type":"metadata","conversationId":"conversation-1","responseId":"response-1"}\n{"type":"delta",',
           '"delta":"Hel"}\n\n{"type":"done","output":"Hello"}',
         ]),
@@ -97,7 +76,9 @@ describe("openaiApi streaming", () => {
       "fetch",
       vi
         .fn()
-        .mockResolvedValue(jsonResponse({ error: "OpenAI is not configured." }, { status: 503 })),
+        .mockResolvedValue(
+          createJsonResponse({ error: "OpenAI is not configured." }, { status: 503 }),
+        ),
     );
 
     await expect(
