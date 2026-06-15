@@ -1,10 +1,7 @@
 import type express from "express";
 import { getTheme, setTheme, type ThemeMode } from "../dataStore.js";
 import type { PapertrailDatabase } from "../database.js";
-
-type ErrorResponse = {
-  error: string;
-};
+import type { ErrorResponse } from "./responses.js";
 
 type PreferencesResponse = {
   theme: ThemeMode;

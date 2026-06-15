@@ -12,10 +12,7 @@ import {
   validateStoredFileId,
   type StoredFile,
 } from "../fileStorage.js";
-
-type ErrorResponse = {
-  error: string;
-};
+import type { ErrorResponse } from "./responses.js";
 
 const fileUpload = multer({
   storage: multer.memoryStorage(),

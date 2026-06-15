@@ -12,10 +12,7 @@ import {
   type StreamState,
 } from "../openaiStream.js";
 import { createConversation, respondToInput } from "../openaiService.js";
-
-type ErrorResponse = {
-  error: string;
-};
+import type { ErrorResponse } from "./responses.js";
 
 type OpenAIStatusResponse = {
   configured: boolean;
