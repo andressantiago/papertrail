@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { makeId } from "@client/lib/id";
 import { clearChatState, fetchChatState } from "@client/lib/chatApi";
+import { getErrorMessage } from "@client/lib/errors";
 import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
 import type { ApiStatus, ChatMessage, StreamEvent } from "@client/types";
 
@@ -22,10 +23,6 @@ function createMessage(
     createdAt: new Date().toISOString(),
     status,
   };
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
 }
 
 function getStatusLabel(statusLoading: boolean, configured: boolean): string {

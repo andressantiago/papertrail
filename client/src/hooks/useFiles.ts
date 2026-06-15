@@ -5,11 +5,8 @@ import {
   fetchStoredFiles,
   uploadStoredFiles,
 } from "@client/lib/filesApi";
+import { getErrorMessage } from "@client/lib/errors";
 import type { StoredFile } from "@client/types";
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
 
 function sortFiles(files: StoredFile[]): StoredFile[] {
   return [...files].sort((first, second) => {
