@@ -6,13 +6,8 @@ import {
   uploadStoredFiles,
 } from "@client/lib/filesApi";
 import { getErrorMessage } from "@client/lib/errors";
+import { sortStoredFilesNewestFirst } from "@client/lib/storedFiles";
 import type { StoredFile } from "@client/types";
-
-function sortFiles(files: StoredFile[]): StoredFile[] {
-  return [...files].sort((first, second) => {
-    return Date.parse(second.uploadedAt) - Date.parse(first.uploadedAt);
-  });
-}
 
 function useDeletingFileIds() {
   const [deletingFileIds, setDeletingFileIds] = useState<ReadonlySet<string>>(() => new Set());
@@ -43,7 +38,7 @@ function useInitialFilesLoad(
     fetchStoredFiles()
       .then((nextFiles) => {
         if (active) {
-          setFiles(sortFiles(nextFiles));
+          setFiles(sortStoredFilesNewestFirst(nextFiles));
           setError(null);
         }
       })
@@ -75,7 +70,7 @@ export function useFiles() {
 
   const loadFiles = useCallback(async () => {
     try {
-      setFiles(sortFiles(await fetchStoredFiles()));
+      setFiles(sortStoredFilesNewestFirst(await fetchStoredFiles()));
       setError(null);
     } catch (loadError) {
       setError(getErrorMessage(loadError, "Unable to load files."));
@@ -102,7 +97,7 @@ export function useFiles() {
 
     try {
       await uploadStoredFiles(selectedFiles);
-      setFiles(sortFiles(await fetchStoredFiles()));
+      setFiles(sortStoredFilesNewestFirst(await fetchStoredFiles()));
     } catch (uploadError) {
       setError(getErrorMessage(uploadError, "Unable to upload files."));
     } finally {
@@ -116,7 +111,7 @@ export function useFiles() {
       setError(null);
 
       try {
-        setFiles(sortFiles(await deleteStoredFileRequest(fileId)));
+        setFiles(sortStoredFilesNewestFirst(await deleteStoredFileRequest(fileId)));
       } catch (deleteError) {
         setError(getErrorMessage(deleteError, "Unable to delete file."));
       } finally {
