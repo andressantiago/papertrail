@@ -49,6 +49,8 @@ const clientHookRestrictedImports = [
   },
 ];
 
+const runtimeTypeCheckedFiles = ["client/src/**/*.{ts,tsx}", "server/**/*.ts", "shared/**/*.ts"];
+
 export default tseslint.config(
   {
     ignores: ["dist/**", "client/dist/**", "node_modules/**"],
@@ -72,6 +74,18 @@ export default tseslint.config(
       "max-statements": ["error", 30],
       "no-undef": "off",
       "@typescript-eslint/consistent-type-imports": "error",
+    },
+  },
+  {
+    files: runtimeTypeCheckedFiles,
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      "@typescript-eslint/require-await": "error",
     },
   },
   {
