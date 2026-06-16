@@ -35,6 +35,20 @@ const sharedRuntimeRestrictedImports = [
   },
 ];
 
+const clientComponentRestrictedImports = [
+  {
+    group: ["@client/components/*", "**/components/*"],
+    message: "Client hooks and lib modules must not import UI components.",
+  },
+];
+
+const clientHookRestrictedImports = [
+  {
+    group: ["@client/hooks/*", "**/hooks/*"],
+    message: "Client lib modules must not import React hooks.",
+  },
+];
+
 export default tseslint.config(
   {
     ignores: ["dist/**", "client/dist/**", "node_modules/**"],
@@ -78,6 +92,32 @@ export default tseslint.config(
         "error",
         {
           patterns: clientRuntimeRestrictedImports,
+        },
+      ],
+    },
+  },
+  {
+    files: ["client/src/hooks/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [...clientRuntimeRestrictedImports, ...clientComponentRestrictedImports],
+        },
+      ],
+    },
+  },
+  {
+    files: ["client/src/lib/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            ...clientRuntimeRestrictedImports,
+            ...clientComponentRestrictedImports,
+            ...clientHookRestrictedImports,
+          ],
         },
       ],
     },
