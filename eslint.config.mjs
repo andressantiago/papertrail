@@ -13,18 +13,18 @@ export default tseslint.config(
   {
     files: ["**/*.{ts,tsx}"],
     rules: {
-      complexity: ["warn", { max: 10 }],
-      "max-depth": ["warn", 3],
+      complexity: ["error", { max: 10 }],
+      "max-depth": ["error", 3],
       "max-lines-per-function": [
-        "warn",
+        "error",
         {
           max: 80,
           skipBlankLines: true,
           skipComments: true,
         },
       ],
-      "max-params": ["warn", 4],
-      "max-statements": ["warn", 30],
+      "max-params": ["error", 4],
+      "max-statements": ["error", 30],
       "no-undef": "off",
     },
   },
