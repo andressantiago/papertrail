@@ -2,29 +2,13 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useFiles } from "@client/hooks/useFiles";
 import { deleteStoredFile, fetchStoredFiles, uploadStoredFiles } from "@client/lib/filesApi";
-import type { StoredFile } from "@client/types";
+import { newerFile, olderFile } from "@tests/client/fixtures/storedFiles";
 
 vi.mock("@client/lib/filesApi", () => ({
   deleteStoredFile: vi.fn(),
   fetchStoredFiles: vi.fn(),
   uploadStoredFiles: vi.fn(),
 }));
-
-const olderFile: StoredFile = {
-  id: "older.txt",
-  name: "older.txt",
-  extension: "txt",
-  size: 100,
-  uploadedAt: "2026-05-28T13:05:00.000Z",
-};
-
-const newerFile: StoredFile = {
-  id: "newer.pdf",
-  name: "newer.pdf",
-  extension: "pdf",
-  size: 200,
-  uploadedAt: "2026-05-29T13:05:00.000Z",
-};
 
 const fetchStoredFilesMock = vi.mocked(fetchStoredFiles);
 const uploadStoredFilesMock = vi.mocked(uploadStoredFiles);
