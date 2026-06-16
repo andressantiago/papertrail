@@ -1,7 +1,4 @@
 .files-scroll {
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   padding: 28px 24px 48px;
 }
 
@@ -56,15 +53,6 @@
   border-color: var(--line-strong);
   background: var(--accent-soft);
   box-shadow: var(--hover-shadow);
-}
-
-.file-dropzone-action:focus {
-  outline: 0;
-}
-
-.file-dropzone-action:focus-visible {
-  outline: 2px solid var(--line-strong);
-  outline-offset: 2px;
 }
 
 .file-upload-popover {

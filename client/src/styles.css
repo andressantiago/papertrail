@@ -189,12 +189,14 @@ svg {
 }
 
 .workspace-tab:focus,
-.icon-button:focus {
+.icon-button:focus,
+.file-dropzone-action:focus {
   outline: 0;
 }
 
 .workspace-tab:focus-visible,
-.icon-button:focus-visible {
+.icon-button:focus-visible,
+.file-dropzone-action:focus-visible {
   outline: 2px solid var(--line-strong);
   outline-offset: 2px;
 }
@@ -311,10 +313,14 @@ svg {
   background: var(--status-offline);
 }
 
-.chat-scroll {
+.chat-scroll,
+.files-scroll {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.chat-scroll {
   padding: 24px 24px 196px;
 }
 
