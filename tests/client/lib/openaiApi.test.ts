@@ -1,13 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
 import type { StreamEvent } from "@client/types";
-import { createJsonResponse, createStreamResponse } from "@tests/client/lib/apiTestUtils";
+import {
+  createJsonResponse,
+  createStreamResponse,
+  stubFetchResponse,
+} from "@tests/client/lib/apiTestUtils";
 
 describe("openaiApi status and conversations", () => {
   it("fetches API status", async () => {
     const status = { configured: true, model: "gpt-5.5" };
-    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse(status));
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(createJsonResponse(status));
 
     await expect(fetchStatus()).resolves.toEqual(status);
     expect(fetchMock).toHaveBeenCalledWith("/api/openai/status");
@@ -16,8 +19,7 @@ describe("openaiApi status and conversations", () => {
   it("creates a conversation with a POST request", async () => {
     const response = { conversationId: "conversation-1", model: "gpt-5.5" };
     const signal = new AbortController().signal;
-    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse(response));
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(createJsonResponse(response));
 
     await expect(createConversation(signal)).resolves.toEqual(response);
     expect(fetchMock).toHaveBeenCalledWith("/api/openai/conversations", {
@@ -31,15 +33,12 @@ describe("openaiApi streaming", () => {
   it("parses newline-delimited stream events across chunks", async () => {
     const events: StreamEvent[] = [];
     const signal = new AbortController().signal;
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue(
-        createStreamResponse([
-          '{"type":"metadata","conversationId":"conversation-1","responseId":"response-1"}\n{"type":"delta",',
-          '"delta":"Hel"}\n\n{"type":"done","output":"Hello"}',
-        ]),
-      );
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(
+      createStreamResponse([
+        '{"type":"metadata","conversationId":"conversation-1","responseId":"response-1"}\n{"type":"delta",',
+        '"delta":"Hel"}\n\n{"type":"done","output":"Hello"}',
+      ]),
+    );
 
     await streamAssistantResponse({
       assistantMessageId: "assistant-1",
@@ -72,14 +71,7 @@ describe("openaiApi streaming", () => {
   });
 
   it("throws API error messages for failed streams", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi
-        .fn()
-        .mockResolvedValue(
-          createJsonResponse({ error: "OpenAI is not configured." }, { status: 503 }),
-        ),
-    );
+    stubFetchResponse(createJsonResponse({ error: "OpenAI is not configured." }, { status: 503 }));
 
     await expect(
       streamAssistantResponse({
@@ -94,7 +86,7 @@ describe("openaiApi streaming", () => {
   });
 
   it("throws when a successful stream has no readable body", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null)));
+    stubFetchResponse(new Response(null));
 
     await expect(
       streamAssistantResponse({

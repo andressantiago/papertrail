@@ -1,8 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { deleteStoredFile, fetchStoredFiles, uploadStoredFiles } from "@client/lib/filesApi";
 import type { StoredFile } from "@client/types";
 import { FILE_UPLOAD_FIELD } from "@shared/fileUpload";
-import { createJsonResponse } from "@tests/client/lib/apiTestUtils";
+import { createJsonResponse, stubFetchResponse } from "@tests/client/lib/apiTestUtils";
 
 const storedFiles: StoredFile[] = [
   {
@@ -16,17 +16,15 @@ const storedFiles: StoredFile[] = [
 
 describe("filesApi", () => {
   it("fetches stored files", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ files: storedFiles }));
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(createJsonResponse({ files: storedFiles }));
 
     await expect(fetchStoredFiles()).resolves.toEqual(storedFiles);
     expect(fetchMock).toHaveBeenCalledWith("/api/files", { signal: undefined });
   });
 
   it("uploads files with multipart form data", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ files: storedFiles }));
+    const fetchMock = stubFetchResponse(createJsonResponse({ files: storedFiles }));
     const file = new File(["hello"], "notes.txt");
-    vi.stubGlobal("fetch", fetchMock);
 
     await expect(uploadStoredFiles([file])).resolves.toEqual(storedFiles);
 
@@ -45,24 +43,20 @@ describe("filesApi", () => {
   });
 
   it("deletes files by encoded id", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ files: [] }));
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(createJsonResponse({ files: [] }));
 
     await expect(deleteStoredFile("report 1.pdf")).resolves.toEqual([]);
     expect(fetchMock).toHaveBeenCalledWith("/api/files/report%201.pdf", { method: "DELETE" });
   });
 
   it("uses API error messages when a request fails", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(createJsonResponse({ error: "No files found." }, { status: 404 })),
-    );
+    stubFetchResponse(createJsonResponse({ error: "No files found." }, { status: 404 }));
 
     await expect(fetchStoredFiles()).rejects.toThrow("No files found.");
   });
 
   it("uses fallback errors when the response body cannot be read", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("not-json", { status: 500 })));
+    stubFetchResponse(new Response("not-json", { status: 500 }));
 
     await expect(uploadStoredFiles([new File(["hello"], "notes.txt")])).rejects.toThrow(
       "Unable to upload files.",
