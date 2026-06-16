@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { PapertrailDatabase } from "./database.js";
 import {
+  claimFileOpenAIUpload,
   getFile,
   getFileOpenAIMetadata,
   recordOpenAIFileUpload,
@@ -72,7 +73,7 @@ export async function uploadStoredFileToOpenAI({
     return;
   }
 
-  const claimed = setFileOpenAIUploadStatus(database, file.id, "uploading");
+  const claimed = claimFileOpenAIUpload(database, file.id);
 
   if (!claimed) {
     return;

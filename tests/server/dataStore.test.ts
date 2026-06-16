@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   appendChatMessages,
+  claimFileOpenAIUpload,
   clearChat,
   deleteFile,
   getActiveConversationId,
@@ -111,7 +112,8 @@ describe("dataStore file OpenAI metadata", () => {
       openaiUploadStatus: "pending",
     });
 
-    expect(setFileOpenAIUploadStatus(database, "notes.txt", "uploading")).toBe(true);
+    expect(claimFileOpenAIUpload(database, "notes.txt")).toBe(true);
+    expect(claimFileOpenAIUpload(database, "notes.txt")).toBe(false);
     expect(getFile(database, "notes.txt")).toMatchObject({
       openaiUploadStatus: "uploading",
     });

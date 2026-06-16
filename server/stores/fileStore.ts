@@ -207,6 +207,20 @@ export function setFileOpenAIUploadStatus(
   return result.changes > 0;
 }
 
+export function claimFileOpenAIUpload(database: PapertrailDatabase, fileId: string): boolean {
+  const result = database
+    .prepare<FileIdParams, never>(
+      `UPDATE files
+       SET openai_upload_status = 'uploading',
+           openai_upload_error = NULL
+       WHERE id = @id
+         AND openai_upload_status = 'pending'`,
+    )
+    .run({ id: fileId });
+
+  return result.changes > 0;
+}
+
 export function recordOpenAIFileUpload(
   database: PapertrailDatabase,
   fileId: string,

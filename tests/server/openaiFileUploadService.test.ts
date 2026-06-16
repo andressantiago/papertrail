@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { deleteFile, getFile, insertFiles } from "@server/dataStore";
+import { deleteFile, getFile, insertFiles, setFileOpenAIUploadStatus } from "@server/dataStore";
 import { initializeInMemoryDatabase, type PapertrailDatabase } from "@server/database";
 import { uploadStoredFileToOpenAI, type OpenAIFileUploader } from "@server/openaiFileUploadService";
 
@@ -85,6 +85,26 @@ describe("openAI file upload service states", () => {
     expect(uploader.uploadFile).not.toHaveBeenCalled();
     expect(getFile(database, "notes.txt")).toMatchObject({
       openaiUploadStatus: "not_configured",
+    });
+  });
+
+  it("skips uploads that another worker has already claimed", async () => {
+    await writeLocalFile();
+    insertPendingFile();
+    const uploader = createUploader({
+      isConfigured: vi.fn(() => {
+        setFileOpenAIUploadStatus(database, "notes.txt", "uploading");
+        return true;
+      }),
+    });
+    const file = getFile(database, "notes.txt");
+
+    expect(file).not.toBeNull();
+    await uploadStoredFileToOpenAI({ database, file: file!, uploadDirectory, uploader });
+
+    expect(uploader.uploadFile).not.toHaveBeenCalled();
+    expect(getFile(database, "notes.txt")).toMatchObject({
+      openaiUploadStatus: "uploading",
     });
   });
 

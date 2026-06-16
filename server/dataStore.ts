@@ -14,6 +14,7 @@ export {
 } from "./stores/chatStore.js";
 export type { ChatMessageRole, ChatMessageStatus, StoredChatMessage } from "./stores/chatStore.js";
 export {
+  claimFileOpenAIUpload,
   deleteFile,
   getFile,
   getFileOpenAIMetadata,
