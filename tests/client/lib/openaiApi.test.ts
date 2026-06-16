@@ -1,11 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
 import type { StreamEvent } from "@client/types";
-import {
-  createJsonResponse,
-  createStreamResponse,
-  stubFetchResponse,
-} from "@tests/client/lib/apiTestUtils";
+import { createJsonResponse, stubFetchResponse } from "@tests/client/lib/apiTestUtils";
+
+function createStreamResponse(chunks: string[]): Response {
+  const encoder = new TextEncoder();
+
+  return new Response(
+    new ReadableStream<Uint8Array>({
+      start(controller) {
+        for (const chunk of chunks) {
+          controller.enqueue(encoder.encode(chunk));
+        }
+        controller.close();
+      },
+    }),
+  );
+}
 
 describe("openaiApi status and conversations", () => {
   it("fetches API status", async () => {
