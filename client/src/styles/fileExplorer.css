@@ -56,24 +56,13 @@
 }
 
 .file-upload-popover {
-  position: absolute;
-  top: calc(100% + 8px);
   left: 0;
-  z-index: 10;
   width: max-content;
   max-width: min(260px, 80vw);
   padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: var(--hover-shadow);
   color: var(--muted);
-  font-size: 13px;
   font-weight: 650;
   line-height: 1.35;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-2px);
   transition:
     opacity 140ms ease,
     transform 140ms ease;
