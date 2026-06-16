@@ -51,6 +51,19 @@ const clientHookRestrictedImports = [
 
 const runtimeTypeCheckedFiles = ["client/src/**/*.{ts,tsx}", "server/**/*.ts", "shared/**/*.ts"];
 
+const runtimeTypeCheckedConfigs = tseslint.configs.recommendedTypeCheckedOnly.map((config) => ({
+  ...config,
+  files: runtimeTypeCheckedFiles,
+  languageOptions: {
+    ...config.languageOptions,
+    parserOptions: {
+      ...config.languageOptions?.parserOptions,
+      projectService: true,
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+}));
+
 export default tseslint.config(
   {
     ignores: ["dist/**", "client/dist/**", "node_modules/**"],
@@ -76,18 +89,7 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": "error",
     },
   },
-  {
-    files: runtimeTypeCheckedFiles,
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-    rules: {
-      "@typescript-eslint/require-await": "error",
-    },
-  },
+  ...runtimeTypeCheckedConfigs,
   {
     files: ["client/src/**/*.{ts,tsx}"],
     languageOptions: {
