@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { deleteStoredFile, fetchStoredFiles, uploadStoredFiles } from "@client/lib/filesApi";
 import type { StoredFile } from "@client/types";
+import { FILE_UPLOAD_FIELD } from "@shared/fileUpload";
 import { createJsonResponse } from "@tests/client/lib/apiTestUtils";
 
 const storedFiles: StoredFile[] = [
@@ -24,11 +25,10 @@ describe("filesApi", () => {
 
   it("uploads files with multipart form data", async () => {
     const fetchMock = vi.fn().mockResolvedValue(createJsonResponse({ files: storedFiles }));
+    const file = new File(["hello"], "notes.txt");
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(uploadStoredFiles([new File(["hello"], "notes.txt")])).resolves.toEqual(
-      storedFiles,
-    );
+    await expect(uploadStoredFiles([file])).resolves.toEqual(storedFiles);
 
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/files",
@@ -37,6 +37,11 @@ describe("filesApi", () => {
         body: expect.any(FormData),
       }),
     );
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const formData = requestInit.body as FormData;
+
+    expect(formData.get(FILE_UPLOAD_FIELD)).toBe(file);
   });
 
   it("deletes files by encoded id", async () => {
