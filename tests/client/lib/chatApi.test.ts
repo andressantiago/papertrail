@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { clearChatState, fetchChatState } from "@client/lib/chatApi";
+import { createJsonResponse, stubFetchResponse } from "@tests/client/lib/apiTestUtils";
 
 const chatState = {
   conversationId: "conversation-1",
@@ -14,18 +15,10 @@ const chatState = {
   ],
 };
 
-function jsonResponse(payload: unknown, init: ResponseInit = {}): Response {
-  return new Response(JSON.stringify(payload), {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-}
-
 describe("chatApi", () => {
   it("fetches chat state", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(chatState));
+    const fetchMock = stubFetchResponse(createJsonResponse(chatState));
     const signal = new AbortController().signal;
-    vi.stubGlobal("fetch", fetchMock);
 
     await expect(fetchChatState(signal)).resolves.toEqual(chatState);
     expect(fetchMock).toHaveBeenCalledWith("/api/chat", { signal });
@@ -33,18 +26,14 @@ describe("chatApi", () => {
 
   it("clears chat state", async () => {
     const clearedState = { conversationId: "", messages: [] };
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(clearedState));
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(createJsonResponse(clearedState));
 
     await expect(clearChatState()).resolves.toEqual(clearedState);
     expect(fetchMock).toHaveBeenCalledWith("/api/chat", { method: "DELETE" });
   });
 
   it("uses API error messages when a request fails", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(jsonResponse({ error: "Chat failed." }, { status: 500 })),
-    );
+    stubFetchResponse(createJsonResponse({ error: "Chat failed." }, { status: 500 }));
 
     await expect(fetchChatState()).rejects.toThrow("Chat failed.");
   });

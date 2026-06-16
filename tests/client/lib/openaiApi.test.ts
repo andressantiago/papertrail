@@ -1,15 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createConversation, fetchStatus, streamAssistantResponse } from "@client/lib/openaiApi";
 import type { StreamEvent } from "@client/types";
+import { createJsonResponse, stubFetchResponse } from "@tests/client/lib/apiTestUtils";
 
-function jsonResponse(payload: unknown, init: ResponseInit = {}): Response {
-  return new Response(JSON.stringify(payload), {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-}
-
-function streamResponse(chunks: string[]): Response {
+function createStreamResponse(chunks: string[]): Response {
   const encoder = new TextEncoder();
 
   return new Response(
@@ -27,8 +21,7 @@ function streamResponse(chunks: string[]): Response {
 describe("openaiApi status and conversations", () => {
   it("fetches API status", async () => {
     const status = { configured: true, model: "gpt-5.5" };
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(status));
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(createJsonResponse(status));
 
     await expect(fetchStatus()).resolves.toEqual(status);
     expect(fetchMock).toHaveBeenCalledWith("/api/openai/status");
@@ -37,8 +30,7 @@ describe("openaiApi status and conversations", () => {
   it("creates a conversation with a POST request", async () => {
     const response = { conversationId: "conversation-1", model: "gpt-5.5" };
     const signal = new AbortController().signal;
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(response));
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(createJsonResponse(response));
 
     await expect(createConversation(signal)).resolves.toEqual(response);
     expect(fetchMock).toHaveBeenCalledWith("/api/openai/conversations", {
@@ -52,15 +44,12 @@ describe("openaiApi streaming", () => {
   it("parses newline-delimited stream events across chunks", async () => {
     const events: StreamEvent[] = [];
     const signal = new AbortController().signal;
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue(
-        streamResponse([
-          '{"type":"metadata","conversationId":"conversation-1","responseId":"response-1"}\n{"type":"delta",',
-          '"delta":"Hel"}\n\n{"type":"done","output":"Hello"}',
-        ]),
-      );
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchMock = stubFetchResponse(
+      createStreamResponse([
+        '{"type":"metadata","conversationId":"conversation-1","responseId":"response-1"}\n{"type":"delta",',
+        '"delta":"Hel"}\n\n{"type":"done","output":"Hello"}',
+      ]),
+    );
 
     await streamAssistantResponse({
       assistantMessageId: "assistant-1",
@@ -93,12 +82,7 @@ describe("openaiApi streaming", () => {
   });
 
   it("throws API error messages for failed streams", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi
-        .fn()
-        .mockResolvedValue(jsonResponse({ error: "OpenAI is not configured." }, { status: 503 })),
-    );
+    stubFetchResponse(createJsonResponse({ error: "OpenAI is not configured." }, { status: 503 }));
 
     await expect(
       streamAssistantResponse({
@@ -113,7 +97,7 @@ describe("openaiApi streaming", () => {
   });
 
   it("throws when a successful stream has no readable body", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null)));
+    stubFetchResponse(new Response(null));
 
     await expect(
       streamAssistantResponse({

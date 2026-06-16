@@ -1,13 +1,5 @@
 .files-scroll {
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   padding: 28px 24px 48px;
-}
-
-.file-explorer {
-  width: min(980px, 100%);
-  margin: 0 auto;
 }
 
 .file-dropzone {
@@ -58,34 +50,14 @@
   box-shadow: var(--hover-shadow);
 }
 
-.file-dropzone-action:focus {
-  outline: 0;
-}
-
-.file-dropzone-action:focus-visible {
-  outline: 2px solid var(--line-strong);
-  outline-offset: 2px;
-}
-
 .file-upload-popover {
-  position: absolute;
-  top: calc(100% + 8px);
   left: 0;
-  z-index: 10;
   width: max-content;
   max-width: min(260px, 80vw);
   padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: var(--hover-shadow);
   color: var(--muted);
-  font-size: 13px;
   font-weight: 650;
   line-height: 1.35;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-2px);
   transition:
     opacity 140ms ease,
     transform 140ms ease;

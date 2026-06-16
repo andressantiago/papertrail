@@ -189,12 +189,14 @@ svg {
 }
 
 .workspace-tab:focus,
-.icon-button:focus {
+.icon-button:focus,
+.file-dropzone-action:focus {
   outline: 0;
 }
 
 .workspace-tab:focus-visible,
-.icon-button:focus-visible {
+.icon-button:focus-visible,
+.file-dropzone-action:focus-visible {
   outline: 2px solid var(--line-strong);
   outline-offset: 2px;
 }
@@ -267,24 +269,28 @@ svg {
   border-left: 1px solid var(--line);
 }
 
-.api-status::after {
+.api-status::after,
+.file-upload-popover {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
   z-index: 10;
-  padding: 7px 9px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
   box-shadow: var(--hover-shadow);
-  color: var(--text);
-  content: attr(data-label);
   font-size: 13px;
-  font-weight: 620;
-  line-height: 1;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-2px);
+}
+
+.api-status::after {
+  right: 0;
+  padding: 7px 9px;
+  color: var(--text);
+  content: attr(data-label);
+  font-weight: 620;
+  line-height: 1;
   transition:
     opacity 120ms ease,
     transform 120ms ease;
@@ -311,10 +317,14 @@ svg {
   background: var(--status-offline);
 }
 
-.chat-scroll {
+.chat-scroll,
+.files-scroll {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.chat-scroll {
   padding: 24px 24px 196px;
 }
 
@@ -469,7 +479,8 @@ svg {
   background: var(--bg);
 }
 
-.composer {
+.composer,
+.file-explorer {
   width: min(980px, 100%);
   margin: 0 auto;
 }

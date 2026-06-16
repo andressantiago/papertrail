@@ -23,10 +23,7 @@ import {
   scheduleOpenAIFileUploads,
   type OpenAIFileUploader,
 } from "../openaiFileUploadService.js";
-
-type ErrorResponse = {
-  error: string;
-};
+import type { ErrorResponse } from "./responses.js";
 
 type FileRouteOptions = {
   openAIFileUploader?: OpenAIFileUploader;
@@ -53,7 +50,7 @@ function readFileUpload(
   return new Promise((resolve, reject) => {
     uploadFiles(req, res, (error) => {
       if (error) {
-        reject(error);
+        reject(error instanceof Error ? error : new Error("File upload failed.", { cause: error }));
         return;
       }
 

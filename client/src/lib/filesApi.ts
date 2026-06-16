@@ -1,5 +1,6 @@
 import { readJson } from "@client/lib/apiResponse";
 import type { StoredFile } from "@client/types";
+import { FILE_UPLOAD_FIELD } from "@shared/fileUpload";
 
 type FilesResponse = {
   files: StoredFile[];
@@ -31,7 +32,7 @@ export async function uploadStoredFiles(files: File[]): Promise<StoredFile[]> {
   const formData = new FormData();
 
   for (const file of files) {
-    formData.append("files", file);
+    formData.append(FILE_UPLOAD_FIELD, file);
   }
 
   const response = await fetch(FILES_ENDPOINT, {
