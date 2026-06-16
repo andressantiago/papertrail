@@ -32,6 +32,12 @@ type OpenAIConversationResponse = {
   model: string;
 };
 
+function sendOpenAIConfigurationError<ResponseBody>(
+  res: express.Response<ResponseBody | ErrorResponse>,
+): express.Response<ResponseBody | ErrorResponse> {
+  return res.status(503).json({ error: "OpenAI is not configured." });
+}
+
 function registerOpenAIStatusRoute(app: express.Express, openAIModel: string): void {
   app.get<never, OpenAIStatusResponse>("/api/openai/status", (_req, res) => {
     res.json({
@@ -48,7 +54,7 @@ function registerOpenAIRespondRoute(app: express.Express): void {
       const { input } = req.body;
 
       if (!isOpenAIConfigured()) {
-        return res.status(503).json({ error: "OpenAI is not configured." });
+        return sendOpenAIConfigurationError(res);
       }
 
       if (typeof input !== "string" || !input.trim()) {
@@ -77,7 +83,7 @@ function registerOpenAIConversationRoute(
     "/api/openai/conversations",
     async (_req, res) => {
       if (!isOpenAIConfigured()) {
-        return res.status(503).json({ error: "OpenAI is not configured." });
+        return sendOpenAIConfigurationError(res);
       }
 
       try {
@@ -101,7 +107,7 @@ function registerOpenAIStreamRoute(app: express.Express, database: PapertrailDat
     "/api/openai/conversations/:conversationId/stream",
     async (req, res) => {
       if (!isOpenAIConfigured()) {
-        return res.status(503).json({ error: "OpenAI is not configured." });
+        return sendOpenAIConfigurationError(res);
       }
 
       const conversationId = req.params.conversationId.trim();
