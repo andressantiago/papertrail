@@ -26,6 +26,7 @@ export default tseslint.config(
       "max-params": ["error", 4],
       "max-statements": ["error", 30],
       "no-undef": "off",
+      "@typescript-eslint/consistent-type-imports": "error",
     },
   },
   {
