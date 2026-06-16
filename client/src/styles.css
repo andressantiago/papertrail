@@ -479,7 +479,8 @@ svg {
   background: var(--bg);
 }
 
-.composer {
+.composer,
+.file-explorer {
   width: min(980px, 100%);
   margin: 0 auto;
 }

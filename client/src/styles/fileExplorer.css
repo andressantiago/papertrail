@@ -2,11 +2,6 @@
   padding: 28px 24px 48px;
 }
 
-.file-explorer {
-  width: min(980px, 100%);
-  margin: 0 auto;
-}
-
 .file-dropzone {
   position: relative;
   display: inline-flex;
