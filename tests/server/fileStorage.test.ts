@@ -50,7 +50,7 @@ describe("fileStorage upload validation", () => {
   });
 });
 
-describe("fileStorage saving and listing", () => {
+describe("fileStorage upload filenames", () => {
   it("sanitizes uploaded filenames and normalizes extensions", async () => {
     const files = await saveUploadedFiles(uploadDirectory, [
       createUpload("../../Quarterly Report!!.PDF"),
@@ -95,7 +95,9 @@ describe("fileStorage saving and listing", () => {
       "new",
     );
   });
+});
 
+describe("fileStorage listing", () => {
   it("lists only supported stored files newest first", async () => {
     await fs.writeFile(path.join(uploadDirectory, "older.txt"), "older");
     await wait(20);

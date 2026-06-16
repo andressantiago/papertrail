@@ -13,12 +13,18 @@ export type WorkspaceView = "files" | "chat";
 
 export type FileExtension = AcceptedFileExtension;
 
+export type OpenAIUploadStatus = "pending" | "uploading" | "uploaded" | "failed" | "not_configured";
+
 export type StoredFile = {
   id: string;
   name: string;
   extension: FileExtension;
   size: number;
   uploadedAt: string;
+  openaiFileId?: string;
+  openaiUploadStatus?: OpenAIUploadStatus;
+  openaiUploadError?: string;
+  openaiUploadedAt?: string;
 };
 
 export type ChatMessage = {

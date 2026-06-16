@@ -1,6 +1,12 @@
 import type express from "express";
 import multer from "multer";
-import { deleteFile as deleteFileRecord, getFile, insertFiles, listFiles } from "../dataStore.js";
+import {
+  deleteFile as deleteFileRecord,
+  getFile,
+  getFileOpenAIMetadata,
+  insertFiles,
+  listFiles,
+} from "../dataStore.js";
 import type { PapertrailDatabase } from "../database.js";
 import {
   FILE_UPLOAD_FIELD,
@@ -12,7 +18,16 @@ import {
   validateStoredFileId,
   type StoredFile,
 } from "../fileStorage.js";
+import {
+  createOpenAIFileUploader,
+  scheduleOpenAIFileUploads,
+  type OpenAIFileUploader,
+} from "../openaiFileUploadService.js";
 import type { ErrorResponse } from "./responses.js";
+
+type FileRouteOptions = {
+  openAIFileUploader?: OpenAIFileUploader;
+};
 
 const fileUpload = multer({
   storage: multer.memoryStorage(),
@@ -77,7 +92,10 @@ export function registerFileRoutes(
   app: express.Express,
   database: PapertrailDatabase,
   uploadDirectory: string,
+  options: FileRouteOptions = {},
 ): void {
+  const openAIFileUploader = options.openAIFileUploader ?? createOpenAIFileUploader();
+
   app.get<never, { files: StoredFile[] } | ErrorResponse>("/api/files", (_req, res) => {
     try {
       return res.json({ files: listFiles(database) });
@@ -94,9 +112,22 @@ export function registerFileRoutes(
       const uploadFiles = await readFileUpload(req, res);
       const reservedFileIds = new Set(listFiles(database).map((file) => file.id));
       savedFiles = await saveUploadedFiles(uploadDirectory, uploadFiles, reservedFileIds);
-      insertFiles(database, savedFiles);
+      const pendingFiles = savedFiles.map(
+        (file): StoredFile => ({
+          ...file,
+          openaiUploadStatus: "pending",
+        }),
+      );
+      insertFiles(database, pendingFiles);
 
-      return res.json({ files: listFiles(database) });
+      res.json({ files: listFiles(database) });
+      scheduleOpenAIFileUploads({
+        database,
+        files: pendingFiles,
+        uploadDirectory,
+        uploader: openAIFileUploader,
+      });
+      return;
     } catch (error) {
       await cleanUpUntrackedFiles(uploadDirectory, savedFiles);
       const apiError = getFileApiError(error);
@@ -118,6 +149,12 @@ export function registerFileRoutes(
 
         if (!storedFile) {
           throw new FileStorageError("File not found.", 404);
+        }
+
+        const openAIMetadata = getFileOpenAIMetadata(database, storedFile.id);
+
+        if (openAIMetadata?.openaiFileId) {
+          await openAIFileUploader.deleteFile(openAIMetadata.openaiFileId);
         }
 
         await deleteStoredFile(uploadDirectory, storedFile.id, { missingOk: true });
